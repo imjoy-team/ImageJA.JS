@@ -1,5 +1,6 @@
 package ij.plugin;
 import ij.*;
+import ij.io.*;
 import ij.gui.*;
 import ij.util.Tools;
 import java.io.*;
@@ -103,7 +104,7 @@ public class ImageJ_Updater implements PlugIn {
 		StringBuffer sb;
 		try {
 			URL url = new URL(address);
-			InputStream in = url.openStream();
+			InputStream in = Opener.openUrlAsInputStream(url);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			sb = new StringBuffer();
 			int count = 0;
@@ -120,14 +121,10 @@ public class ImageJ_Updater implements PlugIn {
 		try {
 			URL url = new URL(address);
 			IJ.showStatus("Connecting to "+IJ.URL);
-			URLConnection uc = url.openConnection();
-			int len = uc.getContentLength();
-			if (IJ.debugMode) IJ.log("Updater (url): "+ address + " "+ len);
-			if (len<=0)
-				return null;
 			String name = address.contains("daily")?"daily build (":"ij.jar (";
-			IJ.showStatus("Downloading "+ name + IJ.d2s((double)len/1048576,1)+"MB)");
-			InputStream in = uc.getInputStream();
+			IJ.showStatus("Downloading "+ name);
+			InputStream in = Opener.openUrlAsInputStream(url);
+			int len = in.available();
 			data = new byte[len];
 			int n = 0;
 			while (n < len) {
@@ -160,7 +157,7 @@ public class ImageJ_Updater implements PlugIn {
 		Vector v = new Vector();
 		try {
 			URL url = new URL(address);
-			InputStream in = url.openStream();
+			InputStream in = Opener.openUrlAsInputStream(url);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line;
 			while (true) {

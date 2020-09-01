@@ -218,7 +218,7 @@ class GifDecoder {
 			name = name.trim();
 			if (name.indexOf("://") > 0) {
 				URL url = new URL(name);
-				in = new BufferedInputStream(url.openStream());
+				in = new BufferedInputStream(Opener.openUrlAsInputStream(url));
 			} else {
 				in = new BufferedInputStream(new FileInputStream(name));
 			}

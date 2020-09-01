@@ -21,6 +21,7 @@ import javax.swing.filechooser.*;
 import java.awt.event.KeyEvent;
 import javax.imageio.ImageIO;
 import java.lang.reflect.Method;
+import com.leaningtech.client.Global;
 
 /** Opens tiff (and tiff stacks), dicom, fits, pgm, jpeg, bmp or
 	gif images, and look-up tables, using a file open dialog or a path.
@@ -46,6 +47,13 @@ public class Opener {
 	static {
 		Hashtable commands = Menus.getCommands();
 		bioformats = commands!=null && commands.get("Bio-Formats Importer")!=null;
+	}
+
+	private static byte[] bytesFromUrl = null;
+	private static boolean urlDone = false;
+	public interface Promise{
+		void resolve(byte[] result);
+		void reject(String error);
 	}
 
 	public Opener() {
@@ -530,10 +538,74 @@ public class Opener {
 		}
 	}
 
+	private static byte[] getBytesFromUrl(String url) throws IOException{
+		bytesFromUrl = null;
+		urlDone = false;
+		IJ.showStatus("Fetching data from "+url);
+		if(EventQueue.isDispatchThread()){
+            Global.jsCall("getBytesFromUrl", url, new Promise(){
+                public void resolve(byte[] result){
+                    bytesFromUrl = result;
+                    urlDone = true;
+                }
+                public void reject(String error){
+                    urlDone = true;
+                }
+            });
+            while(!urlDone){
+                try {
+					Thread.sleep(500);
+                } catch (Exception e) {
+					System.out.println(e.toString());
+                    break;
+                }
+            }
+        }
+        else{
+            Global.jsCall("getBytesFromUrl", url, new Promise(){
+                public void resolve(byte[] result){
+                    bytesFromUrl = result;
+                    urlDone = true;
+                }
+                public void reject(String error){
+                    urlDone = true;
+                }
+            });
+            try {
+                // block execution until we get the file path from js
+                EventQueue.invokeAndWait(new Runnable() {
+                    public void run() {
+                        while(!urlDone){
+                            try {
+								Thread.sleep(500);
+                            } catch (Exception e) {
+								System.out.println(e.toString());
+                                break;
+                            }
+                        }
+                    }
+                });
+            } catch (Exception e) {
+				System.out.println(e.toString());
+			}
+		}
+		if(bytesFromUrl == null) {
+			IJ.showStatus("Failed to fetch data from "+url);
+			throw new IOException();
+		}
+		else{
+			IJ.showStatus("Data downloaded from "+url);
+		}
+		return bytesFromUrl;
+	}
+
+	public static InputStream openUrlAsInputStream(URL url) throws IOException{
+		return new ByteArrayInputStream(getBytesFromUrl(url.toString()));
+	}
+
 	/** Opens the ZIP compressed TIFF or DICOM at the specified URL. */
 	ImagePlus openZipUsingUrl(URL url) throws IOException {
-		URLConnection uc = url.openConnection();
-		InputStream in = uc.getInputStream();
+		InputStream in = openUrlAsInputStream(url);
 		ZipInputStream zis = new ZipInputStream(in);
 		ZipEntry entry = zis.getNextEntry();
 		if (entry==null) {
@@ -608,7 +680,7 @@ public class Opener {
 			return null;
 		Image img = null;
 		try {
-			InputStream in = url.openStream();
+			InputStream in = openUrlAsInputStream(url);
 			img = ImageIO.read(in);
 		} catch (FileNotFoundException e) {
 			IJ.error("Open PNG Using URL", ""+e);
