@@ -1,4 +1,4 @@
-# This script compiles imagej into imagejs
+# This script compiles imagej into image.js
 # It requires CHEERPJ_DIR and IJ_DIR
 set -e
 
@@ -20,8 +20,8 @@ mvn install:install-file -Dfile=${CHEERPJ_DIR}/cheerpj-dom.jar -DgroupId=com.lea
 mvn -Pdeps package
 
 
-mkdir -p imagejs-dist
-cd imagejs-dist
+mkdir -p imagej-js-dist
+cd imagej-js-dist
 
 # download ij153 from imagej.net
 export IJ1_VERSION=ij153

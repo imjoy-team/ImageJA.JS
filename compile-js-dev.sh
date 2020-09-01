@@ -1,4 +1,4 @@
-# This script compiles imagej into imagejs
+# This script compiles imagej into image.js
 # It requires CHEERPJ_DIR and IJ_DIR
 
 set -e

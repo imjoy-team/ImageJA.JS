@@ -116,7 +116,7 @@ public class SaveDialog {
 		if (returnVal!=JFileChooser.APPROVE_OPTION)
 			{Macro.abort(); return;}
 		File f = fc.getSelectedFile();
-		// for ImageJS we will always replace since the saving is done in the browser
+		// for ImageJ.JS we will always replace since the saving is done in the browser
 		// if(f.exists()) {
 		// 	int ret = JOptionPane.showConfirmDialog (fc,
 		// 		"The file "+ f.getName() + " already exists. \nWould you like to replace it?",
@@ -134,7 +134,7 @@ public class SaveDialog {
 					ext = null;
 				name = setExtension(name, ext);
 			}
-			// for ImageJS
+			// for ImageJ.JS
 			// make sure we save it into a writable folder
 			dir = dir.replace("/str/", "/files/");
 		}
@@ -159,7 +159,7 @@ public class SaveDialog {
 					if (returnVal!=JFileChooser.APPROVE_OPTION)
 						{Macro.abort(); return;}
 					File f = fc.getSelectedFile();
-					// for ImageJS we will always replace since the saving is done in the browser
+					// for ImageJ.JS we will always replace since the saving is done in the browser
 					// if(f.exists()) {
 					// 	int ret = JOptionPane.showConfirmDialog (fc,
 					// 		"The file "+ f.getName() + " already exists. \nWould you like to replace it?",
@@ -207,7 +207,7 @@ public class SaveDialog {
 			if (".raw".equals(ext))
 				ext = null;
 			name = setExtension(name, ext);
-			// for ImageJS we will always replace since the saving is done in the browser
+			// for ImageJ.JS we will always replace since the saving is done in the browser
 			// boolean dialog = name!=null && !name.equals(origName) && IJ.isMacOSX() && !IJ.isMacro();
 			// if (dialog) {
 			// 	File f = new File( fd.getDirectory()+getFileName());
@@ -233,7 +233,7 @@ public class SaveDialog {
 		fd.dispose();
 		if (ij==null)
 			parent.dispose();
-		// for ImageJS
+		// for ImageJ.JS
 		// make sure we save it into a writable folder
 		dir = dir.replace("/str/", "/files/");
 	}
