@@ -91,7 +91,7 @@ public class PluginInstaller implements PlugIn {
 			// dir = sd.getDirectory();
 			dir = "/files/";
 		}
-		// for ImageJ.JS, make sure it's writable
+		// for ImageJS, make sure it's writable
 		dir = dir.replace("/str/", "/files/");
 		//IJ.log(dir+"   "+Menus.getPlugInsPath());
 		if (!savePlugin(new File(dir,name), data))

@@ -306,7 +306,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener, 
 			if (!saveContents()) return;
 		}
 		//setVisible(false);
-		// disable for ImageJ.JS
+		// disable for ImageJS
 		// dispose();
 		WindowManager.removeWindow(this);
 		textPanel.flush();

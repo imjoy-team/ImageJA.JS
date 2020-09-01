@@ -51,7 +51,7 @@ public class FileSaver {
 			File f = new File(path);
 			if (f==null || !f.exists())
 				return saveAsTiff();
-			// for ImageJ.JS we will always replace since the saving is done in the browser
+			// for ImageJS we will always replace since the saving is done in the browser
 			// if (!IJ.isMacro()) {
 			// 	GenericDialog gd = new GenericDialog("Save as TIFF");
 			// 	gd.addMessage("\""+ofi.fileName+"\" already exists.\nDo you want to replace it?");
