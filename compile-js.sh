@@ -20,8 +20,8 @@ mvn install:install-file -Dfile=${CHEERPJ_DIR}/cheerpj-dom.jar -DgroupId=com.lea
 mvn -Pdeps package
 
 
-mkdir -p imagej-js-dist
-cd imagej-js-dist
+mkdir -p imagejs-dist
+cd imagejs-dist
 
 # download ij153 from imagej.net
 export IJ1_VERSION=ij153
