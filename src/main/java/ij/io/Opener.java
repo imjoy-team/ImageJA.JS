@@ -441,14 +441,7 @@ public class Opener {
 			} else if (lurl.endsWith(".png"))
 				imp = openPngUsingURL(name, u);
 			else {
-				URLConnection uc = u.openConnection();
-				String type = uc.getContentType();
-				if (type!=null && (type.equals("image/jpeg")||type.equals("image/gif")))
-					imp = openJpegOrGifUsingURL(name, u);
-				else if (type!=null && type.equals("image/png"))
-					imp = openPngUsingURL(name, u);
-				else
-					imp = openWithHandleExtraFileTypes(url, new int[]{0});
+				imp = openWithHandleExtraFileTypes(url, new int[]{0});
 			}
 			IJ.showStatus("");
 			return imp;
