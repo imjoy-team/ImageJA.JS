@@ -21,7 +21,7 @@ import java.awt.image.*;
 		text[2] = "National Institutes of Health, USA";
 		text[3] = IJ.URL;
 		text[4] = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)");
-		text[5] = "ImageJ.JS is compiled by Wei OUYANG with CheerpJ 2.1";
+		text[5] = "ImageJ.JS was compiled with CheerpJ 2.1 by Wei OUYANG";
 		text[6] = "ImageJ is in the public domain";
 		ImageProcessor ip = null;
 		ImageJ ij = IJ.getInstance();
@@ -62,10 +62,9 @@ import java.awt.image.*;
 		ip.drawString(text[3], x(text[3],ip,max), y);
 		y += 18;
 		ip.drawString(text[4], x(text[4],ip,max), y);
-		if (IJ.maxMemory()>0L) {
-			y += 18;
-			ip.drawString(text[5], x(text[5],ip,max), y);
-		}
+		y += 18;
+		ip.drawString(text[5], x(text[5],ip,max), y);
+	
 		ip.drawString(text[6], ip.getWidth()-ip.getStringWidth(text[6])-10, ip.getHeight()-3);
 		ImageWindow.centerNextImage();
 		ImagePlus imp = new ImagePlus("About ImageJ", ip);
