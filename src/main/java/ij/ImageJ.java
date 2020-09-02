@@ -17,6 +17,7 @@ import java.net.*;
 import java.awt.image.*;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import com.leaningtech.client.Global;
 
 /**
 This frame is the main ImageJ class.
@@ -232,6 +233,11 @@ public class ImageJ extends Frame implements ActionListener,
 		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
 		// For ImageJ.JS
 		Prefs.useJFileChooser = true;
+		try{
+			Global.jsCall("onImageJInitialized");
+		}
+		finally{
+		}
 	}
  	
  	private void loadCursors() {

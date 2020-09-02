@@ -1,11 +1,11 @@
 package ij.io;
 
-import com.leaningtech.client.Global;
 import ij.IJ;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.io.File;
 import javax.swing.JFileChooser;
+import com.leaningtech.client.Global;
 
 /**
  * This class provides the functionality to get a file path
