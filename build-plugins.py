@@ -3,6 +3,8 @@ from shutil import copyfile
 from zipfile import ZipFile
 
 plugins_dir = "plugins"
+luts_dir = "luts"
+macros_dir = "macros"
 ij_path = "ij.jar"
 
 MANIFEST = '''Manifest-Version: 1.0
@@ -48,13 +50,18 @@ def index_dir(cdir):
                 if file_name.endswith('.jar')  and os.path.exists(os.path.join(cdir, fname+".jar.js")):
                     print('Adding ' + os.path.join(cdir, file_name))
                     index.write(file_name+"\n")
+                if file_name.endswith('.ijm') or file_name.endswith('.lut'):
+                    print('Adding ' + os.path.join(cdir, file_name))
+                    index.write(file_name+"\n")
             elif os.path.isdir(os.path.join(cdir, file_name)):
                 index.write(file_name+"\n")
             
 print('====> Building index.list for ' + os.path.abspath(plugins_dir))
-index_dir(plugins_dir)
-for root, dirs, files in os.walk(plugins_dir, topdown=False):
-    for d in dirs:
-        index_dir(os.path.join(root, d))
+
+for d in [plugins_dir, luts_dir, macros_dir]:
+    index_dir(d)
+    for root, dirs, files in os.walk(d, topdown=False):
+        for d in dirs:
+            index_dir(os.path.join(root, d))
 
 print('Done')
