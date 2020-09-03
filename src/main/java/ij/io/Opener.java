@@ -90,6 +90,21 @@ public class Opener {
 	 * @see ij.IJ#openImage(String)
 	*/
 	public void open(String path) {
+		if(!path.startsWith("http") || EventQueue.isDispatchThread()){
+			openPath(path);
+		}
+		else{
+			// for http url, we need to run it in another thread
+			// in order to call JS function (getBytesFromUrl)
+			new Thread(new Runnable() {
+				public void run() {
+					openPath(path);
+				}
+			}).start();
+		}
+	}
+
+	private void openPath(String path) {
 		boolean isURL = path.indexOf("://")>0;
 		if (isURL && isText(path)) {
 			openTextURL(path);
