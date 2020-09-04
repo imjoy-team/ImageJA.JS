@@ -25,17 +25,19 @@ cd imagej-js-dist
 
 # download ij153 from imagej.net
 export IJ1_VERSION=ij153
+export IJ_JAR=ij-1.53d.jar
+
 curl http://wsr.imagej.net/distros/cross-platform/${IJ1_VERSION}.zip -LO
 unzip -q -o ${IJ1_VERSION}.zip
 rm ${IJ1_VERSION}.zip
 rm -rf ${IJ1_VERSION}
 mv ImageJ ${IJ1_VERSION}
 
-cp ../target/ij-1.53c.jar ${IJ1_VERSION}/ij.jar
+cp ../target/${IJ_JAR} ${IJ1_VERSION}/
 cd ${IJ1_VERSION}
 
 # compile ij.jar and we should get
-${CHEERPJ_DIR}/cheerpjfy.py --pack-jar=ij-packed.jar ij.jar
+${CHEERPJ_DIR}/cheerpjfy.py --pack-jar=${IJ_JAR}.packed.jar ${IJ_JAR}
 
 # download thunderSTORM
 curl https://github.com/zitmen/thunderstorm/releases/download/v1.3/Thunder_STORM.jar -LO
@@ -44,8 +46,8 @@ ${CHEERPJ_DIR}/cheerpjfy.py --deps=ij.jar --pack-jar=plugins/Thunder_STORM-packe
 
 
 # replace with the packed version
-rm ij.jar
-mv ij-packed.jar ij.jar
+rm ${IJ_JAR}
+mv ${IJ_JAR}.packed.jar ${IJ_JAR}
 rm plugins/Thunder_STORM.jar
 mv plugins/Thunder_STORM-packed.jar plugins/Thunder_STORM.jar
 rm ImageJ.exe

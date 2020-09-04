@@ -23,7 +23,7 @@ import java.awt.image.*;
 		text[2] = "National Institutes of Health, USA";
 		text[3] = IJ.URL;
 		text[4] = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)");
-		text[5] = "ImageJ.JS was compiled with CheerpJ 2.1 by Wei OUYANG";
+		text[5] = "ImageJ.JS was compiled by Wei OUYANG";
 		text[6] = "ImageJ is in the public domain";
 		ImageProcessor ip = null;
 		ImageJ ij = IJ.getInstance();
@@ -56,10 +56,8 @@ import java.awt.image.*;
 		add(text[3], xcenter, y, font, TextRoi.CENTER, overlay);
 		y += 27;
 		add(text[4], xcenter, y, font, TextRoi.CENTER, overlay);
-		if (IJ.maxMemory()>0L) {
-			y += 27;
-			add(text[5], xcenter, y, font, TextRoi.CENTER, overlay);
-		}
+		y += 27;
+		add(text[5], xcenter, y, font, TextRoi.CENTER, overlay);
 		add(text[6], width-10, ip.getHeight()-10, font, TextRoi.RIGHT, overlay);
 		imp.setOverlay(overlay);
 		ImageWindow.centerNextImage();
