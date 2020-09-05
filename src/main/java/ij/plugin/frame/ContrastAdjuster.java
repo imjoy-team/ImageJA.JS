@@ -7,6 +7,9 @@ import ij.plugin.*;
 import ij.process.*;
 import ij.gui.*;
 import ij.measure.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.event.ChangeListener;
 
 /** This plugin implements the Brightness/Contrast, Window/level and
 	Color Balance commands, all in the Image/Adjust sub-menu. It
@@ -14,7 +17,7 @@ import ij.measure.*;
 	contrast of the active image. It is multi-threaded to
 	provide a more  responsive user interface. */
 public class ContrastAdjuster extends PlugInDialog implements Runnable,
-	ActionListener, AdjustmentListener, ItemListener {
+	ActionListener, ChangeListener, ItemListener {
 
 	public static final String LOC_KEY = "b&c.loc";
 	public static final String[] sixteenBitRanges = {"Automatic", "8-bit (0-255)", "10-bit (0-1023)",
@@ -43,7 +46,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 	double defaultMin, defaultMax;
 	int contrast, brightness;
 	boolean RGBImage;
-	Scrollbar minSlider, maxSlider, contrastSlider, brightnessSlider;
+	JSlider minSlider, maxSlider, contrastSlider, brightnessSlider;
 	Label minLabel, maxLabel, windowLabel, levelLabel;
 	boolean done;
 	int autoThreshold;
@@ -129,44 +132,47 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 
 		// min slider
 		if (!windowLevel) {
-			minSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
-			GUI.fixScrollbar(minSlider);
+			minSlider = new JSlider(JSlider.HORIZONTAL, 0, sliderRange, sliderRange/2);
+			minSlider.setExtent(1);
+			// GUI.fixScrollbar(minSlider);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(minSlider, c);
 			add(minSlider);
-			minSlider.addAdjustmentListener(this);
+			minSlider.addChangeListener(this);
 			minSlider.addKeyListener(ij);
-			minSlider.setUnitIncrement(1);
+			minSlider.setMinorTickSpacing(1);
 			minSlider.setFocusable(false); // prevents blinking on Windows
 			addLabel("Minimum", null);
 		}
 
 		// max slider
 		if (!windowLevel) {
-			maxSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
-			GUI.fixScrollbar(maxSlider);
+			maxSlider = new JSlider(JSlider.HORIZONTAL, 0, sliderRange, sliderRange/2);
+			maxSlider.setExtent(1);
+			// GUI.fixScrollbar(maxSlider);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(maxSlider, c);
 			add(maxSlider);
-			maxSlider.addAdjustmentListener(this);
+			maxSlider.addChangeListener(this);
 			maxSlider.addKeyListener(ij);
-			maxSlider.setUnitIncrement(1);
+			maxSlider.setMinorTickSpacing(1);
 			maxSlider.setFocusable(false);
 			addLabel("Maximum", null);
 		}
 
 		// brightness slider
-		brightnessSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
-		GUI.fixScrollbar(brightnessSlider);
+		brightnessSlider = new JSlider(JSlider.HORIZONTAL, 0, sliderRange, sliderRange/2);
+		brightnessSlider.setExtent(1);
+		// GUI.fixScrollbar(brightnessSlider);
 		c.gridy = y++;
 		c.insets = new Insets(windowLevel?12:2, 10, 0, 10);
 		gridbag.setConstraints(brightnessSlider, c);
 		add(brightnessSlider);
-		brightnessSlider.addAdjustmentListener(this);
+		brightnessSlider.addChangeListener(this);
 		brightnessSlider.addKeyListener(ij);
-		brightnessSlider.setUnitIncrement(1);
+		brightnessSlider.setMinorTickSpacing(1);
 		brightnessSlider.setFocusable(false);
 		if (windowLevel)
 			addLabel("Level: ", levelLabel=new TrimmedLabel("        "));
@@ -175,15 +181,16 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 
 		// contrast slider
 		if (!balance) {
-			contrastSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
-			GUI.fixScrollbar(contrastSlider);
+			contrastSlider = new JSlider(JSlider.HORIZONTAL, 0, sliderRange, sliderRange/2);
+			contrastSlider.setExtent(1);
+			// GUI.fixScrollbar(contrastSlider);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(contrastSlider, c);
 			add(contrastSlider);
-			contrastSlider.addAdjustmentListener(this);
+			contrastSlider.addChangeListener(this);
 			contrastSlider.addKeyListener(ij);
-			contrastSlider.setUnitIncrement(1);
+			contrastSlider.setMinorTickSpacing(1);
 			contrastSlider.setFocusable(false);
 			if (windowLevel)
 				addLabel("Window: ", windowLabel=new TrimmedLabel("        "));
@@ -293,7 +300,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		}
 	}
 
-	public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
+	public synchronized void stateChanged(ChangeEvent e) {
 		Object source = e.getSource();
 		if (source==minSlider)
 			minSliderValue = minSlider.getValue();
@@ -462,7 +469,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		}
 	}
 
-	void updateScrollBars(Scrollbar sb, boolean newRange) {
+	void updateScrollBars(JSlider sb, boolean newRange) {
 		if (sb==null || sb!=contrastSlider) {
 			double mid = sliderRange/2;
 			double c = ((defaultMax-defaultMin)/(max-min))*mid;
@@ -470,8 +477,11 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 				c = sliderRange - ((max-min)/(defaultMax-defaultMin))*mid;
 			contrast = (int)c;
 			if (contrastSlider!=null) {
-				if (newRange)
-					contrastSlider.setValues(contrast, 1, 0,  sliderRange);
+				if (newRange){
+					contrastSlider.setMinimum(0);
+					contrastSlider.setMaximum(sliderRange);
+					contrastSlider.setValue(contrast);
+				}
 				else
 					contrastSlider.setValue(contrast);
 			}
@@ -480,20 +490,29 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 			double level = min + (max-min)/2.0;
 			double normalizedLevel = 1.0 - (level - defaultMin)/(defaultMax-defaultMin);
 			brightness = (int)(normalizedLevel*sliderRange);
-			if (newRange)
-				brightnessSlider.setValues(brightness, 1, 0,  sliderRange);
+			if (newRange){
+				brightnessSlider.setMinimum(0);
+				brightnessSlider.setMaximum(sliderRange);
+				brightnessSlider.setValue(brightness);
+			}
 			else
 				brightnessSlider.setValue(brightness);
 		}
 		if (minSlider!=null && (sb==null || sb!=minSlider)) {
-			if (newRange)
-				minSlider.setValues(scaleDown(min), 1, 0,  sliderRange);
+			if (newRange){
+				minSlider.setMinimum(0);
+				minSlider.setMaximum(sliderRange);
+				minSlider.setValue(scaleDown(min));
+			}
 			else
 				minSlider.setValue(scaleDown(min));
 		}
 		if (maxSlider!=null && (sb==null || sb!=maxSlider)) {
-			if (newRange)
-				maxSlider.setValues(scaleDown(max), 1, 0,  sliderRange);
+			if (newRange){
+				maxSlider.setMinimum(0);
+				maxSlider.setMaximum(sliderRange);
+				maxSlider.setValue(scaleDown(max));
+			}
 			else
 				maxSlider.setValue(scaleDown(max));
 		}
@@ -1195,7 +1214,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 
 class ContrastPlot extends Canvas implements MouseListener {
 
-	static final int WIDTH=128, HEIGHT=64;
+	static final int WIDTH=190, HEIGHT=64;
 	double defaultMin = 0;
 	double defaultMax = 255;
 	double min = 0;
