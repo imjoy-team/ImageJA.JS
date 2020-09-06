@@ -85,12 +85,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private boolean doNotSavePrefs;
 	private int pc;
 	private String icon;
-	private int startupTime;
-	private PopupMenu rectPopup, ovalPopup, pointPopup, linePopup, switchPopup;
-	private CheckboxMenuItem rectItem, roundRectItem, rotatedRectItem;
-	private CheckboxMenuItem ovalItem, ellipseItem, brushItem;
-	private CheckboxMenuItem pointItem, multiPointItem;
-	private CheckboxMenuItem straightLineItem, polyLineItem, freeLineItem, arrowItem;
+	private PopupMenu switchPopup;
 	private String currentSet = "Startup Macros";
 
 	private static Color foregroundColor = Prefs.getColor(Prefs.FCOLOR,Color.white);
