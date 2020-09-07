@@ -175,6 +175,16 @@ public class IJ {
 		return runMacroFile(name, null);
 	}
 
+	/** Install the specified macro. */
+	public static int installMacro(String macro) {
+		return (new MacroInstaller()).install(macro);
+	}
+
+	/** Install the specified macro tool. */
+	public static void installTool(String macro) {
+		(new MacroInstaller()).installSingleTool(macro);
+	}
+
 	/** Runs the specified plugin using the specified image. */
 	public static Object runPlugIn(ImagePlus imp, String className, String arg) {
 		if (imp!=null) {
