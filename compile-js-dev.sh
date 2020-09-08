@@ -10,6 +10,9 @@ mvn install:install-file -Dfile=${CHEERPJ_DIR}/cheerpj-dom.jar -DgroupId=com.lea
 mvn -Pdeps package
 cp target/${IJ_JAR} ${IJ_DIR}/
 
+cp ${CHEERPJ_DIR}/cheerpj-dom.jar ${IJ_DIR}/cheerpj-dom-1.0.jar
+${CHEERPJ_DIR}/cheerpjfy.py ${IJ_DIR}/cheerpj-dom-1.0.jar
+
 cd ${IJ_DIR}
 ${CHEERPJ_DIR}/cheerpjfy.py ${IJ_JAR}
 

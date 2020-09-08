@@ -36,6 +36,10 @@ mv ImageJ ${IJ1_VERSION}
 cp ../target/${IJ_JAR} ${IJ1_VERSION}/
 cd ${IJ1_VERSION}
 
+# compile cheerpj dom
+cp ${CHEERPJ_DIR}/cheerpj-dom.jar cheerpj-dom-1.0.jar
+${CHEERPJ_DIR}/cheerpjfy.py cheerpj-dom-1.0.jar
+
 # compile ij.jar and we should get
 ${CHEERPJ_DIR}/cheerpjfy.py --pack-jar=${IJ_JAR}.packed.jar ${IJ_JAR}
 
