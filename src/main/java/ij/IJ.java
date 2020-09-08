@@ -154,8 +154,20 @@ public class IJ {
 		does not return a value, or "[aborted]" if the macro was aborted
 		due to an error.  */
 	public static String runMacro(String macro, String arg) {
-		Macro_Runner mr = new Macro_Runner();
-		return mr.runMacro(macro, arg);
+		if(EventQueue.isDispatchThread()){
+			Macro_Runner mr = new Macro_Runner();
+			return mr.runMacro(macro, arg);
+		}
+		else{
+			// for ImageJ.JS we need to run in a separate thread
+			new Thread(new Runnable() {
+				public void run() {
+					Macro_Runner mr = new Macro_Runner();
+					mr.runMacro(macro, arg);
+				}
+			}).start();
+			return null;
+		}
 	}
 
 	/** Runs the specified macro or script file in the current thread.
