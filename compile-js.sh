@@ -46,7 +46,7 @@ ${CHEERPJ_DIR}/cheerpjfy.py --pack-jar=${IJ_JAR}.packed.jar ${IJ_JAR}
 # download thunderSTORM
 curl https://github.com/zitmen/thunderstorm/releases/download/v1.3/Thunder_STORM.jar -LO
 mv Thunder_STORM.jar plugins/Thunder_STORM.jar
-${CHEERPJ_DIR}/cheerpjfy.py --deps=ij.jar --pack-jar=plugins/Thunder_STORM-packed.jar plugins/Thunder_STORM.jar
+${CHEERPJ_DIR}/cheerpjfy.py --deps=${IJ_JAR} --pack-jar=plugins/Thunder_STORM-packed.jar plugins/Thunder_STORM.jar
 
 
 # replace with the packed version

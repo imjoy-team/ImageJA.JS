@@ -16,8 +16,8 @@ ${CHEERPJ_DIR}/cheerpjfy.py ${IJ_DIR}/cheerpj-dom-1.0.jar
 cd ${IJ_DIR}
 ${CHEERPJ_DIR}/cheerpjfy.py ${IJ_JAR}
 
-# curl https://github.com/zitmen/thunderstorm/releases/download/v1.3/Thunder_STORM.jar -LO
-# mv Thunder_STORM.jar plugins/Thunder_STORM.jar
-# ${CHEERPJ_DIR}/cheerpjfy.py  --deps=ij.jar plugins/Thunder_STORM.jar
+curl https://github.com/zitmen/thunderstorm/releases/download/v1.3/Thunder_STORM.jar -LO
+mv Thunder_STORM.jar plugins/Thunder_STORM.jar
+${CHEERPJ_DIR}/cheerpjfy.py  --deps=${IJ_JAR} plugins/Thunder_STORM.jar
 
 # python ${DIR}/build-plugins.py
