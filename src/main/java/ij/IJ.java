@@ -2035,7 +2035,7 @@ public class IJ {
 	/* Saves the specified image and return bytes */
 	public static byte[] saveAsBytes(ImagePlus imp, String format) {
 		String tmp = "/files/tmp";
-		saveAs(imp, format, tmp);
+		tmp = saveAs(imp, format, tmp);
 		byte[] bytes = openAsBytes(tmp);
 		removeFile(tmp);
 		return bytes;
@@ -2044,9 +2044,9 @@ public class IJ {
 	/* Saves the specified image. The format argument must be "tiff",  
 		"jpeg", "gif", "zip", "raw", "avi", "bmp", "fits", "pgm", "png", 
 		"text image", "lut", "selection" or "xy Coordinates". */
- 	public static void saveAs(ImagePlus imp, String format, String path) {
+ 	public static String saveAs(ImagePlus imp, String format, String path) {
 		if (format==null)
-			return;
+			return null;
 		if (path!=null && path.length()==0)
 			path = null;
 		format = format.toLowerCase(Locale.US);
@@ -2055,15 +2055,15 @@ public class IJ {
 			roi2.endPaste();
 		if (format.indexOf("tif")!=-1) {
 			saveAsTiff(imp, path);
-			return;
+			return path;
 		} else if (format.indexOf("jpeg")!=-1 || format.indexOf("jpg")!=-1) {
 			path = updateExtension(path, ".jpg");
 			JpegWriter.save(imp, path, FileSaver.getJpegQuality());
-			return;
+			return path;
 		} else if (format.indexOf("gif")!=-1) {
 			path = updateExtension(path, ".gif");
 			GifWriter.save(imp, path);
-			return;
+			return path;
 		} else if (format.indexOf("text image")!=-1) {
 			path = updateExtension(path, ".txt");
 			format = "Text Image...";
@@ -2113,6 +2113,7 @@ public class IJ {
 			else
 				run(imp, format, "save="+path);
 		}
+		return path;
 	}
 	
 	/** Saves the specified image in TIFF format. Displays a file save dialog
