@@ -36,6 +36,13 @@ mv ImageJ ${IJ1_VERSION}
 cp ../target/${IJ_JAR} ${IJ1_VERSION}/
 cd ${IJ1_VERSION}
 
+
+# remove all the plugins except Filters
+mkdir useful_plugins
+mv plugins/Filters useful_plugins/Filters
+rm -rf plugins
+mv useful_plugins plugins
+
 # compile cheerpj dom
 cp ${CHEERPJ_DIR}/cheerpj-dom.jar cheerpj-dom-1.0.jar
 ${CHEERPJ_DIR}/cheerpjfy.py cheerpj-dom-1.0.jar
