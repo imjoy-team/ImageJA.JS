@@ -2044,6 +2044,16 @@ public class IJ {
 		return bytes;
 	}
 
+	/* Get the pixels of a specific position */
+	public static Object getPixels(ImagePlus imp, int channel, int slice, int frame) {
+		// if not set, get the current slice
+		if(channel!= -1 && slice != -1 && frame != -1){
+			imp.setPosition(channel, slice, frame);
+		}
+		ImageProcessor ip = imp.getProcessor();
+		return ip.getPixels();
+	}
+
 	/* Saves the specified image. The format argument must be "tiff",  
 		"jpeg", "gif", "zip", "raw", "avi", "bmp", "fits", "pgm", "png", 
 		"text image", "lut", "selection" or "xy Coordinates". */
