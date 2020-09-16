@@ -2054,6 +2054,10 @@ public class IJ {
 		return ip.getPixels();
 	}
 
+	public static int[] getDimensions(ImagePlus imp){
+		return imp.getDimensions(true);
+	}
+
 	/* Saves the specified image. The format argument must be "tiff",  
 		"jpeg", "gif", "zip", "raw", "avi", "bmp", "fits", "pgm", "png", 
 		"text image", "lut", "selection" or "xy Coordinates". */
