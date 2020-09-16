@@ -2035,7 +2035,10 @@ public class IJ {
 	/* Saves the specified image and return bytes */
 	public static byte[] saveAsBytes(ImagePlus imp, String format) {
 		String tmp = "/files/tmp";
+		String title = imp.getTitle();
 		tmp = saveAs(imp, format, tmp);
+		// recover the title
+		imp.setTitle(title);
 		byte[] bytes = openAsBytes(tmp);
 		removeFile(tmp);
 		return bytes;
