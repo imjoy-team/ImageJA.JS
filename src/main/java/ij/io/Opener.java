@@ -128,6 +128,10 @@ public class Opener {
 		ImagePlus imp = null;
 		if (path.endsWith(".txt"))
 			this.fileType = JAVA_OR_TEXT;
+		else if(path.endsWith(".imjoy.html")){
+			Editor ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
+						if (ed!=null) ed.open(getDir(path), getName(path));
+		}
 		else
 			imp = openImage(path);
 		if (imp==null && isURL)

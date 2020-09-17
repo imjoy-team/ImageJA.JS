@@ -11,7 +11,7 @@ import ij.util.Tools;
 public class NewPlugin implements PlugIn {
 
 	public static final int MACRO=0, JAVASCRIPT=1, PLUGIN=2, PLUGIN_FILTER=3, PLUGIN_FRAME=4,
-		TEXT_FILE=5, TABLE=6, MACRO_TOOL=7, PLUGIN_TOOL=8, TEMPLATE=9;
+		TEXT_FILE=5, TABLE=6, MACRO_TOOL=7, PLUGIN_TOOL=8, TEMPLATE=9, IMJOY_PLUGIN=10;
     private static int rows = 24;
     private static int columns = 80;
     private static int tableWidth = 350;
@@ -32,7 +32,10 @@ public class NewPlugin implements PlugIn {
     		name = "Macro.txt";
     	} else if (arg.equals("macro-tool")) {
     		type = TEMPLATE;
-    		name = "Circle_Tool.txt";
+			name = "Circle_Tool.txt";
+    	} else if (arg.startsWith("imjoy-plugin:")) {
+    		type = IMJOY_PLUGIN;
+			name = "UntitledPlugin.imjoy.html";
     	} else if (arg.equals("javascript")) {
     		type = JAVASCRIPT;
     		name = "Script.js";
@@ -71,6 +74,8 @@ public class NewPlugin implements PlugIn {
 			createMacro(name);
 		} else if (type==TABLE)
 			createTable();
+		else if(type==IMJOY_PLUGIN)
+			createImJoyPlugin(name, arg.replace("imjoy-plugin:", ""));
 		else
 			createPlugin(name, type, arg);
     }
@@ -95,6 +100,17 @@ public class NewPlugin implements PlugIn {
 	
 	void createTable() {
 			new TextWindow(name, "", tableWidth, tableHeight);
+	}
+
+	public void createImJoyPlugin(String name, String templateUrl) {
+		ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
+		if (ed==null) return;
+		String text = IJ.openUrlAsString(templateUrl);
+		if (text.startsWith("<Error: ")) {
+			IJ.error("Open ImJoy template", text);
+			return;
+		}
+		ed.create(name, text);
 	}
 
 	public void createPlugin(String name, int type, String methods) {

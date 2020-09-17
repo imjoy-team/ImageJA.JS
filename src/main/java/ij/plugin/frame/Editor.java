@@ -14,6 +14,7 @@ import ij.plugin.Commands;
 import ij.plugin.Macro_Runner;
 import ij.plugin.JavaScriptEvaluator;
 import ij.io.SaveDialog;
+import com.leaningtech.client.Global;
 
 /** This is a simple TextArea based editor for editing and compiling plugins. */
 public class Editor extends PlugInFrame implements ActionListener, ItemListener,
@@ -75,21 +76,21 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	private static int nWindows;
 	private Menu fileMenu, editMenu;
 	private Properties p = new Properties();
-	private int[] macroStarts;
-	private String[] macroNames;
+	// private int[] macroStarts;
+	// private String[] macroNames;
 	private MenuBar mb;
-	private Menu macrosMenu;
-	private int nMacros;
-	private Program pgm;
+	private Menu macrosMenu, imjoyMenu;
+	// private int nMacros;
+	// private Program pgm;
 	private int eventCount;
-	private String shortcutsInUse;
-	private int inUseCount;
+	// private String shortcutsInUse;
+	// private int inUseCount;
 	private MacroInstaller installer;
 	private static String defaultDir = Prefs.get(DEFAULT_DIR, null);;
 	private boolean dontShowWindow;
 	private int[] sizes = {9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72};
 	private int fontSizeIndex = (int)Prefs.get(FONT_SIZE, 6); // defaults to 16-point
-	private CheckboxMenuItem monospaced;
+	// private CheckboxMenuItem monospaced;
 	private static boolean wholeWords;
 	private boolean isMacroWindow;
 	private int debugStart, debugEnd;
@@ -161,20 +162,20 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			item = new MenuItem("Undo",new MenuShortcut(KeyEvent.VK_Z));		
 		m.add(item);
 		m.addSeparator();		
-		if (IJ.isWindows())
-			item = new MenuItem("Cut  Ctrl+X");
-		else
-			item = new MenuItem("Cut",new MenuShortcut(KeyEvent.VK_X));
-		m.add(item);
-		if (IJ.isWindows())
-			item = new MenuItem("Copy  Ctrl+C");
-		else
-			item = new MenuItem("Copy", new MenuShortcut(KeyEvent.VK_C));
-		m.add(item);
-		if (IJ.isWindows())
-			item = new MenuItem("Paste  Ctrl+V");
-		else
-			item = new MenuItem("Paste",new MenuShortcut(KeyEvent.VK_V));
+		// if (IJ.isWindows())
+		// 	item = new MenuItem("Cut  Ctrl+X");
+		// else
+		// 	item = new MenuItem("Cut",new MenuShortcut(KeyEvent.VK_X));
+		// m.add(item);
+		// if (IJ.isWindows())
+		// 	item = new MenuItem("Copy  Ctrl+C");
+		// else
+		// 	item = new MenuItem("Copy", new MenuShortcut(KeyEvent.VK_C));
+		// m.add(item);
+		// if (IJ.isWindows())
+		// 	item = new MenuItem("Paste  Ctrl+V");
+		// else
+		// 	item = new MenuItem("Paste",new MenuShortcut(KeyEvent.VK_V));
 		m.add(item);
 		m.addSeparator();
 		m.add(new MenuItem("Find...", new MenuShortcut(KeyEvent.VK_F)));
@@ -196,17 +197,17 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if ((options&MENU_BAR)!=0)
 			setMenuBar(mb);
 		
-		m = new Menu("Font");
-		m.add(new MenuItem("Make Text Smaller"));
-		m.add(new MenuItem("Make Text Larger"));
-		m.addSeparator();
-		monospaced = new CheckboxMenuItem("Monospaced Font", Prefs.get(FONT_MONO, false));
-		if ((options&MONOSPACED)!=0) monospaced.setState(true);
-		monospaced.addItemListener(this);
-		m.add(monospaced);
-		m.add(new MenuItem("Save Settings"));
-		m.addActionListener(this);
-		mb.add(m);
+		// m = new Menu("Font");
+		// m.add(new MenuItem("Make Text Smaller"));
+		// m.add(new MenuItem("Make Text Larger"));
+		// m.addSeparator();
+		// monospaced = new CheckboxMenuItem("Monospaced Font", Prefs.get(FONT_MONO, false));
+		// if ((options&MONOSPACED)!=0) monospaced.setState(true);
+		// monospaced.addItemListener(this);
+		// m.add(monospaced);
+		// m.add(new MenuItem("Save Settings"));
+		// m.addActionListener(this);
+		// mb.add(m);
 		
 		m = Menus.getExamplesMenu(this);
 		mb.add(m);
@@ -239,6 +240,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (IJ.isMacOSX()) IJ.wait(25); // needed to get setCaretPosition() on OS X
 		ta.setCaretPosition(0);
 		setWindowTitle(name);
+		if(name.endsWith(".imjoy.html")){
+			imjoyMenu = new Menu("ImJoy");		
+			imjoyMenu.add(new MenuItem("Reload Plugin"));	
+			imjoyMenu.add(new MenuItem("Run Plugin"));
+			imjoyMenu.addActionListener(this);
+			mb.add(imjoyMenu);
+		}
 		boolean macroExtension = name.endsWith(".txt") || name.endsWith(".ijm");
 		if (macroExtension || name.endsWith(".js") || name.endsWith(".bsh") || name.endsWith(".py") || name.indexOf(".")==-1) {
 			macrosMenu = new Menu("Macros");			
@@ -759,6 +767,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		boolean altKeyDown = (flags & Event.ALT_MASK)!=0;		
 		if ("Save".equals(what))
 			save();
+		else if ("Run Plugin".equals(what)){
+			Global.jsCall("runImJoyPlugin", ta.getText());
+		}
+		else if ("Reload Plugin".equals(what)){
+			Global.jsCall("reloadImJoyPlugin", ta.getText());
+		}
 		else if ("Compile and Run".equals(what))
 				compileAndRun();
 		else if ("Run Macro".equals(what)) {
@@ -807,12 +821,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			print();
 		else if (what.startsWith("Undo"))
 		   undo();
-		else if (what.startsWith("Paste"))
-			paste();
-		else if (what.startsWith("Copy"))
-			copy();
-		else if (what.startsWith("Cut"))
-		   cut();
+		// else if (what.startsWith("Paste"))
+		// 	paste();
+		// else if (what.startsWith("Copy"))
+		// 	copy();
+		// else if (what.startsWith("Cut"))
+		//    cut();
 		else if ("Save As...".equals(what))
 			saveAs();
 		else if ("Select All".equals(what))
@@ -829,12 +843,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			detab();
 		else if ("Zap Gremlins".equals(what))
 			zapGremlins();
-		else if ("Make Text Larger".equals(what))
-			changeFontSize(true);
-		else if ("Make Text Smaller".equals(what))
-			changeFontSize(false);
-		else if ("Save Settings".equals(what))
-			saveSettings();
+		// else if ("Make Text Larger".equals(what))
+		// 	changeFontSize(true);
+		// else if ("Make Text Smaller".equals(what))
+		// 	changeFontSize(false);
+		// else if ("Save Settings".equals(what))
+		// 	saveSettings();
 		else if ("New...".equals(what))
 			IJ.run("Text Window");
 		else if ("Open...".equals(what))
@@ -1495,33 +1509,33 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		ta.selectAll();
 	}
     
-    void changeFontSize(boolean larger) {
-        int in = fontSizeIndex;
-        if (larger) {
-            fontSizeIndex++;
-            if (fontSizeIndex==sizes.length)
-                fontSizeIndex = sizes.length-1;
-        } else {
-            fontSizeIndex--;
-            if (fontSizeIndex<0)
-                fontSizeIndex = 0;
-        }
-        IJ.showStatus(sizes[fontSizeIndex]+" point");
-        setFont();
-    }
+    // void changeFontSize(boolean larger) {
+    //     int in = fontSizeIndex;
+    //     if (larger) {
+    //         fontSizeIndex++;
+    //         if (fontSizeIndex==sizes.length)
+    //             fontSizeIndex = sizes.length-1;
+    //     } else {
+    //         fontSizeIndex--;
+    //         if (fontSizeIndex<0)
+    //             fontSizeIndex = 0;
+    //     }
+    //     IJ.showStatus(sizes[fontSizeIndex]+" point");
+    //     setFont();
+    // }
     
-    void saveSettings() {
-		Prefs.set(FONT_SIZE, fontSizeIndex);
-		Prefs.set(FONT_MONO, monospaced.getState());
-		IJ.showStatus("Font settings saved (size="+sizes[fontSizeIndex]+", monospaced="+monospaced.getState()+")");
-    }
+    // void saveSettings() {
+	// 	Prefs.set(FONT_SIZE, fontSizeIndex);
+	// 	Prefs.set(FONT_MONO, monospaced.getState());
+	// 	IJ.showStatus("Font settings saved (size="+sizes[fontSizeIndex]+", monospaced="+monospaced.getState()+")");
+    // }
     
     void setFont() {
         ta.setFont(new Font(getFontName(), Font.PLAIN, sizes[fontSizeIndex]));
     }
     
     String getFontName() {
-    	return monospaced.getState()?"Monospaced":"SansSerif";
+    	return "Monospaced";
     }
 	
 	public void setFont(Font font) {
