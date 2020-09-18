@@ -137,6 +137,28 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		positionWindow();
 		if (!IJ.isJava18() && !IJ.isLinux())
 			insertSpaces = false;
+		
+		addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent evt) {
+				try{
+					Global.jsCall("onEditorResized");
+				}
+				finally{
+				}
+			}
+		});
+		ta.addTextListener( new TextListener()
+		{	
+			@Override
+			public void textValueChanged( final TextEvent t )
+			{
+				try{
+					Global.jsCall("onEditorTextChanged");
+				}
+				finally{
+				}
+			}
+		});
 	}
 	
 	void addMenuBar(int options) {
