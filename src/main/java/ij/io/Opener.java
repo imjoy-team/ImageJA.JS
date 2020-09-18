@@ -30,9 +30,9 @@ public class Opener {
 
 	public static final int UNKNOWN=0,TIFF=1,DICOM=2,FITS=3,PGM=4,JPEG=5,
 		GIF=6,LUT=7,BMP=8,ZIP=9,JAVA_OR_TEXT=10,ROI=11,TEXT=12,PNG=13,
-		TIFF_AND_DICOM=14,CUSTOM=15, AVI=16, OJJ=17, TABLE=18, RAW=19; // don't forget to also update 'types'
+		TIFF_AND_DICOM=14,CUSTOM=15, AVI=16, OJJ=17, TABLE=18, RAW=19, IMJOY=20;// don't forget to also update 'types'
 	public static final String[] types = {"unknown","tif","dcm","fits","pgm",
-		"jpg","gif","lut","bmp","zip","java/txt","roi","txt","png","t&d","custom","ojj","table","raw"};
+		"jpg","gif","lut","bmp","zip","java/txt","roi","txt","png","t&d","custom","ojj","table","raw", "imjoy"};
 	private static String defaultDirectory = null;
 	private int fileType;
 	private boolean error;
@@ -128,10 +128,6 @@ public class Opener {
 		ImagePlus imp = null;
 		if (path.endsWith(".txt"))
 			this.fileType = JAVA_OR_TEXT;
-		else if(path.endsWith(".imjoy.html")){
-			Editor ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
-						if (ed!=null) ed.open(getDir(path), getName(path));
-		}
 		else
 			imp = openImage(path);
 		if (imp==null && isURL)
@@ -180,6 +176,10 @@ public class Opener {
 					break;
 				case RAW:
 					IJ.runPlugIn("ij.plugin.Raw", path);
+					break;
+				case IMJOY:
+					Editor ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
+					if (ed!=null) ed.open(getDir(path), getName(path));
 					break;
 				case UNKNOWN:
 					String msg =
@@ -1247,6 +1247,9 @@ public class Opener {
 			return UNKNOWN;
 		File file = new File(path);
 		String name = file.getName();
+		if (name.endsWith(".imjoy.html")){
+			return IMJOY;
+		}
 		InputStream is;
 		byte[] buf = new byte[132];
 		try {
