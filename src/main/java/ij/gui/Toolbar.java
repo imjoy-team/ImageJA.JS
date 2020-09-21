@@ -1485,32 +1485,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		MenuItem item = (MenuItem)e.getSource();
 		String cmd = e.getActionCommand();
 		PopupMenu popup = (PopupMenu)item.getParent();
-		if (pickerPopup==popup) {
-			if ("White/Black".equals(cmd)) {
-				setForegroundColor(Color.white);
-				setBackgroundColor(Color.black);				
-			} else if ("Black/White".equals(cmd)) {
-				setForegroundColor(Color.black);
-				setBackgroundColor(Color.white);				
-			} else if ("Red".equals(cmd))
-				setForegroundColor(Color.red);
-			else if ("Green".equals(cmd))
-				setForegroundColor(Color.green);
-			else if ("Blue".equals(cmd))
-				setForegroundColor(Color.blue);
-			else if ("Yellow".equals(cmd))
-				setForegroundColor(Color.yellow);
-			else if ("Cyan".equals(cmd))
-				setForegroundColor(Color.cyan);
-			else if ("Magenta".equals(cmd))
-				setForegroundColor(Color.magenta);
-			else
-				IJ.run("Color Picker...", "");
-			if (!"Color Picker".equals(cmd))
-				ColorPicker.update();	
-			setTool(previousTool);			
-			return;
-		}
 		int tool = -1;
 		for (int i=CUSTOM1; i<getNumTools(); i++) {
 			if (popup==menus[i]) {
