@@ -1831,8 +1831,6 @@ public class IJ {
 			if (dir==null) Macro.abort();
 		}
 		dir = addSeparator(dir);
-		if (dir!=null && isWindows())
-			dir = dir.replaceAll("/", File.separator);  // replace "/" with "\"
 		return dir;
 	}
 	
