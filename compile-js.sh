@@ -49,29 +49,29 @@ ${CHEERPJ_DIR}/cheerpjfy.py cheerpj-dom-1.0.jar
 
 # compile ij.jar and we should get
 ${CHEERPJ_DIR}/cheerpjfy.py --pack-jar=${IJ_JAR}.packed.jar ${IJ_JAR}
-
+rm ${IJ_JAR}
+mv ${IJ_JAR}.packed.jar ${IJ_JAR}
 
 # download and compile MorphoLibJ
 curl https://github.com/ijpb/MorphoLibJ/releases/download/v1.4.2.1/MorphoLibJ_-1.4.2.1.jar -LO
 mv MorphoLibJ_-1.4.2.1.jar plugins/MorphoLibJ_-1.4.2.1.jar
-${CHEERPJ_DIR}/cheerpjfy.py  --deps=${IJ_JAR} plugins/MorphoLibJ_-1.4.2.1.jar
+${CHEERPJ_DIR}/cheerpjfy.py  --deps=${IJ_JAR} --pack-jar=plugins/MorphoLibJ_-1.4.2.1-packed.jar plugins/MorphoLibJ_-1.4.2.1.jar
 # extract plugins.config
 jar xf plugins/MorphoLibJ_-1.4.2.1.jar plugins.config
 mv plugins.config plugins/MorphoLibJ_-1.4.2.1.jar.config
+rm plugins/MorphoLibJ_-1.4.2.1.jar
+mv plugins/MorphoLibJ_-1.4.2.1-packed.jar plugins/MorphoLibJ_-1.4.2.1.jar
 
 # download and compile Thunder_STORM
 curl https://github.com/zitmen/thunderstorm/releases/download/v1.3/Thunder_STORM.jar -LO
 mv Thunder_STORM.jar plugins/Thunder_STORM.jar
-${CHEERPJ_DIR}/cheerpjfy.py  --deps=${IJ_JAR} plugins/Thunder_STORM.jar
+${CHEERPJ_DIR}/cheerpjfy.py  --deps=${IJ_JAR} --pack-jar=plugins/Thunder_STORM-packed.jar plugins/Thunder_STORM.jar
 # extract plugins.config
 jar xf plugins/Thunder_STORM.jar plugins.config
 mv plugins.config plugins/Thunder_STORM.jar.config
-
-# replace with the packed version
-rm ${IJ_JAR}
-mv ${IJ_JAR}.packed.jar ${IJ_JAR}
 rm plugins/Thunder_STORM.jar
 mv plugins/Thunder_STORM-packed.jar plugins/Thunder_STORM.jar
+
 rm ImageJ.exe
 rm run
 rm -rf ImageJ.app
