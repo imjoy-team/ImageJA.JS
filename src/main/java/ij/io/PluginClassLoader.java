@@ -53,11 +53,18 @@ public class PluginClassLoader extends URLClassLoader {
 		for (int i=0; i<list.length; i++) {
 			if (list[i].equals(".rsrc"))
 				continue;
-			File f2=new File(path, list[i]);
-			if (f2.isDirectory())
-				addDirectory(f2);
-			else 
-				addJar(f2);
+			// avoid fetch the actual file for ImageJ.JS
+			if(list[i].endsWith(".jar")){
+				addJar(new File(path, list[i]));
+			}
+			else{
+				addDirectory(new File(path, list[i]));
+			}
+			// File f2=new File(path, list[i]);
+			// if (f2.isDirectory())
+			// 	addDirectory(f2);
+			// else 
+			// 	addJar(f2);
 		}
 		addDirectory(f, "jars"); // add ImageJ/jars; requested by Wilhelm Burger
 	}
@@ -74,9 +81,13 @@ public class PluginClassLoader extends URLClassLoader {
 		if (innerlist==null)
 			return;
 		for (int j=0; j<innerlist.length; j++) {
-			File g = new File(f,innerlist[j]);
-			if (g.isFile())
-				addJar(g);
+			// avoid fetch the actual file for ImageJ.JS
+			if(innerlist[j].endsWith(".jar")){
+				addJar(new File(f,innerlist[j]));
+			}
+			// File g = new File(f,innerlist[j]);
+			// if (g.isFile())
+			// 	addJar(g);
 		}
 	}
 

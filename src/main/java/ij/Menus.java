@@ -919,6 +919,15 @@ public class Menus {
 
     /** Opens the configuration file ("plugins.config") from a JAR file and returns it as an InputStream. */
 	InputStream getConfigurationFile(String jar) {
+		try{
+			File pluginsConifg = new File(jar+".config");
+			if(pluginsConifg.exists()){
+				return new FileInputStream(pluginsConifg);
+			}
+		}
+		catch (Throwable e) {
+    		IJ.log(jar+": "+e);
+		}
 		try {
 			ZipFile jarFile = new ZipFile(jar);
 			Enumeration entries = jarFile.entries();
