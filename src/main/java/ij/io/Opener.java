@@ -96,11 +96,15 @@ public class Opener {
 		else{
 			// for http url, we need to run it in another thread
 			// in order to call JS function (getBytesFromUrl)
-			new Thread(new Runnable() {
-				public void run() {
-					openPath(path);
-				}
-			}).start();
+			try {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						openPath(path);
+					}
+				});
+			} catch (Exception e) {
+				System.out.println(e.toString());
+			}
 		}
 	}
 

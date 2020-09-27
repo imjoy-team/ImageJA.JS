@@ -160,12 +160,16 @@ public class IJ {
 		}
 		else{
 			// for ImageJ.JS we need to run in a separate thread
-			new Thread(new Runnable() {
-				public void run() {
-					Macro_Runner mr = new Macro_Runner();
-					mr.runMacro(macro, arg);
-				}
-			}).start();
+			try {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						Macro_Runner mr = new Macro_Runner();
+						mr.runMacro(macro, arg);
+					}
+				});
+			} catch (Exception e) {
+				System.out.println(e.toString());
+			}
 			return null;
 		}
 	}
