@@ -11,6 +11,7 @@ import ij.plugin.frame.Editor;
 import ij.plugin.frame.Recorder;
 import ij.text.TextWindow;
 import ij.util.Tools;
+import com.leaningtech.client.Global;
 	
 /**	Copies/pastes images to/from the system clipboard. */
 public class Clipboard implements PlugIn, Transferable {
@@ -40,12 +41,13 @@ public class Clipboard implements PlugIn, Transferable {
 	
 	/** Copies the contents of the specified image, or selection, to the system clicpboard. */
 	public static void copyToSystem(ImagePlus imp) {
-		Clipboard cplugin = new Clipboard();
-		cplugin.gImp = imp;
-		cplugin.setup();
-		try {
-			cplugin.clipboard.setContents(cplugin, null);
-		} catch (Throwable t) {}
+		Global.jsCall("copyImageToSystem", imp);
+		// Clipboard cplugin = new Clipboard();
+		// cplugin.gImp = imp;
+		// cplugin.setup();
+		// try {
+		// 	cplugin.clipboard.setContents(cplugin, null);
+		// } catch (Throwable t) {}
 	}
 	
 	void copy(boolean cut) {
@@ -81,8 +83,9 @@ public class Clipboard implements PlugIn, Transferable {
 	}
 	
 	void paste() {
-		if (ImagePlus.getClipboard()==null)
+		if (ImagePlus.getClipboard()==null){
 			showSystemClipboard();
+		}
 		else {
 			ImagePlus imp = WindowManager.getCurrentImage();
 			if (imp!=null) {
@@ -100,50 +103,63 @@ public class Clipboard implements PlugIn, Transferable {
 	}
 	
 	void copyToSystem() {
-		this.gImp = WindowManager.getCurrentImage();
-		setup();
-		try {
-			clipboard.setContents(this, null);
-		} catch (Throwable t) {}
+		try{
+			this.gImp = WindowManager.getCurrentImage();
+			Image img = (Image)getTransferData(DataFlavor.imageFlavor);
+			if (img==null) {
+				IJ.error("Unable to convert image on system clipboard");
+				IJ.showStatus("");
+				return;
+			}
+			Global.jsCall("copyToSystem", new ImagePlus(this.gImp.getTitle(), img));
+		} catch (Throwable t) {
+			System.out.println(t.toString());
+		}
+
+		// setup();
+		// try {
+		// 	clipboard.setContents(this, null);
+		// } catch (Throwable t) {}
 	 	if (Recorder.scriptMode())
 			Recorder.recordCall("imp.copyToSystem();");
 	}
 	
 	void showSystemClipboard() {
-		setup();
+		// setup();
 		IJ.showStatus("Opening system clipboard...");
-		try {
-			Transferable transferable = clipboard.getContents(null);
-			boolean imageSupported = transferable.isDataFlavorSupported(DataFlavor.imageFlavor);
-			boolean textSupported = transferable.isDataFlavorSupported(DataFlavor.stringFlavor);
-			if (imageSupported) {
-				Image img = (Image)transferable.getTransferData(DataFlavor.imageFlavor);
-				if (img==null) {
-					IJ.error("Unable to convert image on system clipboard");
-					IJ.showStatus("");
-					return;
-				}
-				int width = img.getWidth(null);
-				int height = img.getHeight(null);
-				BufferedImage   bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-				Graphics g = bi.createGraphics();
-				g.drawImage(img, 0, 0, null);
-				g.dispose();
-				WindowManager.checkForDuplicateName = true;
-				new ImagePlus("Clipboard", bi).show();
-			} else if (textSupported) {
-				String text = (String)transferable.getTransferData(DataFlavor.stringFlavor);
-				if (IJ.isMacintosh())
-					text = Tools.fixNewLines(text);
-				Editor ed = new Editor();
-				ed.setSize(600, 300);
-				ed.create("Clipboard", text);
-				IJ.showStatus("");
-			} else
-				IJ.error("Unable to find an image on the system clipboard");
-		} catch (Throwable e) {
-			IJ.handleException(e);
-		}
+		Global.jsCall("pasteFromSystem");
+		// try {
+		// 	Transferable transferable = clipboard.getContents(null);
+		// 	boolean imageSupported = transferable.isDataFlavorSupported(DataFlavor.imageFlavor);
+		// 	boolean textSupported = transferable.isDataFlavorSupported(DataFlavor.stringFlavor);
+		// 	if (imageSupported) {
+		// 		Image img = (Image)transferable.getTransferData(DataFlavor.imageFlavor);
+		// 		if (img==null) {
+		// 			IJ.error("Unable to convert image on system clipboard");
+		// 			IJ.showStatus("");
+		// 			return;
+		// 		}
+		// 		int width = img.getWidth(null);
+		// 		int height = img.getHeight(null);
+		// 		BufferedImage   bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		// 		Graphics g = bi.createGraphics();
+		// 		g.drawImage(img, 0, 0, null);
+		// 		g.dispose();
+		// 		WindowManager.checkForDuplicateName = true;
+		// 		new ImagePlus("Clipboard", bi).show();
+		// 	} else if (textSupported) {
+		// 		String text = (String)transferable.getTransferData(DataFlavor.stringFlavor);
+		// 		if (IJ.isMacintosh())
+		// 			text = Tools.fixNewLines(text);
+		// 		Editor ed = new Editor();
+		// 		ed.setSize(600, 300);
+		// 		ed.create("Clipboard", text);
+		// 		IJ.showStatus("");
+		// 	} else
+		// 		IJ.error("Unable to find an image on the system clipboard");
+		// } catch (Throwable e) {
+		// 	IJ.handleException(e);
+		// }
 	}
 	
 	public DataFlavor[] getTransferDataFlavors() {
