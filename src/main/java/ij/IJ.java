@@ -2049,7 +2049,7 @@ public class IJ {
 	/* Get the pixels of a specific position */
 	public static Object getPixels(ImagePlus imp, int channel, int slice, int frame) {
 		// if not set, get the current slice
-		if(channel!= -1 && slice != -1 && frame != -1){
+		if(channel!= 0 || slice != 0 || frame != 0){
 			imp.setPosition(channel, slice, frame);
 		}
 		ImageProcessor ip = imp.getProcessor();
