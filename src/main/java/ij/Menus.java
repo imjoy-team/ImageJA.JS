@@ -138,8 +138,8 @@ public class Menus {
 		addPlugInItem(edit, "Undo", "ij.plugin.Commands(\"undo\")", KeyEvent.VK_Z, false);
 		edit.addSeparator();
 		addPlugInItem(edit, "Cut", "ij.plugin.Clipboard(\"cut\")", KeyEvent.VK_X, false);
-		addPlugInItem(edit, "Copy", "ij.plugin.Clipboard(\"copy\")", KeyEvent.VK_C, false);
-		addPlugInItem(edit, "Copy to System", "ij.plugin.Clipboard(\"scopy\")", 0, false);
+		addPlugInItem(edit, "Copy", "ij.plugin.Clipboard(\"copy\")", 0, false);
+		addPlugInItem(edit, "Copy to System", "ij.plugin.Clipboard(\"scopy\")", KeyEvent.VK_C, false);
 		addPlugInItem(edit, "Paste", "ij.plugin.Clipboard(\"paste\")", 0, false); // disable Ctrl+V for imagej.js
 		addPlugInItem(edit, "Paste Control...", "ij.plugin.frame.PasteController", 0, false);
 		edit.addSeparator();
