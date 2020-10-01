@@ -467,8 +467,10 @@ public class FileOpener {
 		boolean gzip = fi.fileName!=null && (fi.fileName.endsWith(".gz")||fi.fileName.endsWith(".GZ"));
 		if (fi.inputStream!=null)
 			is = fi.inputStream;
-		else if (fi.url!=null && !fi.url.equals(""))
-			is = new URL(fi.url+fi.fileName).openStream();
+		else if (fi.url!=null && !fi.url.equals("")){
+			Opener o = new Opener();
+			is = o.openUrlAsInputStream(new URL(fi.url+fi.fileName));
+		}
 		else {
 			if (fi.directory!=null && fi.directory.length()>0 && !(fi.directory.endsWith(Prefs.separator)||fi.directory.endsWith("/")))
 				fi.directory += Prefs.separator;

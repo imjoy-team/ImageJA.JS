@@ -347,8 +347,10 @@ public class LutLoader extends ImagePlus implements PlugIn {
 	/** Opens an NIH Image LUT or a 768 byte binary LUT. */
 	int openBinaryLut(FileInfo fi, boolean isURL, boolean raw) throws IOException {
 		InputStream is;
-		if (isURL)
-			is = new URL(fi.url+fi.fileName).openStream();
+		if (isURL){
+			Opener o = new Opener();
+			is = o.openUrlAsInputStream(new URL(fi.url+fi.fileName));
+		}
 		else
 			is = new FileInputStream(fi.getFilePath());
 		DataInputStream f = new DataInputStream(is);

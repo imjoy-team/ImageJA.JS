@@ -453,7 +453,7 @@ public class Opener {
 			String lurl = url.toLowerCase(Locale.US);
 			if (lurl.endsWith(".tif")) {
 				this.url = url;
-				imp = openTiff(u.openStream(), name);
+				imp = openTiff(openUrlAsInputStream(u), name);
 			} else if (lurl.endsWith(".zip"))
 				imp = openZipUsingUrl(u);
 			else if (lurl.endsWith(".jpg") || lurl.endsWith(".gif"))
@@ -997,7 +997,7 @@ public class Opener {
 				info[0].inputStream.close();
 			} catch (IOException e) {}
 			try {
-				info[0].inputStream = new URL(url).openStream();
+				info[0].inputStream = openUrlAsInputStream(new URL(url));
 			} catch (Exception e) {
 				IJ.error("Open TIFF", ""+e);
 				return null;
@@ -1382,7 +1382,7 @@ public class Opener {
 		if (fi.inputStream!=null)
 			return fi.inputStream;
 		else if (fi.url!=null && !fi.url.equals(""))
-			return new URL(fi.url+fi.fileName).openStream();
+			return openUrlAsInputStream(new URL(fi.url+fi.fileName));
 		else {
 			File f = new File(fi.getFilePath());
 			if (f==null || f.isDirectory())
