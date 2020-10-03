@@ -6,6 +6,7 @@ import ij.io.*;
 import ij.plugin.*;
 import ij.plugin.filter.*;
 import ij.util.Tools;
+import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.Recorder;
 import ij.plugin.frame.ThresholdAdjuster;
 import ij.macro.Interpreter;
@@ -2058,6 +2059,22 @@ public class IJ {
 
 	public static int[] getDimensions(ImagePlus imp){
 		return imp.getDimensions(true);
+	}
+
+	public static PlugInFrame createPlugInFrame(String title, int x, int y, int width, int height){
+		PlugInFrame pf = new PlugInFrame(title);
+		pf.setLocation(x, y);
+		if(width >0 && height>0){
+			pf.setSize(width, height);
+		}
+		else{
+			Dimension screen = IJ.getScreenSize();
+			pf.setSize(screen.width, screen.height);
+		}
+		pf.setVisible(true);
+		WindowManager.addWindow(pf);
+		WindowManager.setWindow(pf);
+		return pf;
 	}
 
 	/* Saves the specified image. The format argument must be "tiff",  
