@@ -362,7 +362,7 @@ public class Opener {
 				} else
 					return null;
 			case JPEG:
-				imp = openUsingImageIO(directory+name);
+				imp = openJpegOrGif(directory, name);
 				if (imp!=null&&imp.getWidth()!=0) return imp; else return null;
 			case GIF:
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.GIF_Reader", path);
