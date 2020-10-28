@@ -846,6 +846,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		   undo();
 		// else if (what.startsWith("Paste"))
 		// 	paste();
+		else if (what.equals("Copy to Image Info"))
+			copyToInfo();
 		// else if (what.startsWith("Copy"))
 		// 	copy();
 		// else if (what.startsWith("Cut"))
@@ -876,8 +878,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			IJ.run("Text Window");
 		else if ("Open...".equals(what))
 			IJ.open();
-		else if (what.equals("Copy to Image Info"))
-			copyToInfo();
 		else if (what.equals("Enter Interactive Mode"))
 			enterInteractiveMode();
 		else if (what.equals("Assign to Repeat Cmd"))
