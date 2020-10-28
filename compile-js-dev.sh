@@ -3,11 +3,12 @@
 
 set -e
 
-IJ_JAR="ij-1.53e.jar"
+IJ_JAR="ij-1.53f.jar"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+mvn clean
 mvn install:install-file -Dfile=${CHEERPJ_DIR}/cheerpj-dom.jar -DgroupId=com.learningtech -DartifactId=cheerpj-dom -Dversion=1.0 -Dpackaging=jar
-mvn -Pdeps package
+mvn package
 cp target/${IJ_JAR} ${IJ_DIR}/
 
 cd ${IJ_DIR}

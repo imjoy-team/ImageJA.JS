@@ -17,7 +17,7 @@ fi
 
 # compile imagej
 mvn install:install-file -Dfile=${CHEERPJ_DIR}/cheerpj-dom.jar -DgroupId=com.learningtech -DartifactId=cheerpj-dom -Dversion=1.0 -Dpackaging=jar
-mvn -Pdeps package
+mvn package
 
 
 mkdir -p imagej-js-dist
@@ -25,7 +25,7 @@ cd imagej-js-dist
 
 # download ij153 from imagej.net
 export IJ1_VERSION=ij153
-export IJ_JAR=ij-1.53e.jar
+export IJ_JAR=ij-1.53f.jar
 
 curl http://wsr.imagej.net/distros/cross-platform/${IJ1_VERSION}.zip -LO
 unzip -q -o ${IJ1_VERSION}.zip

@@ -155,7 +155,7 @@ public class IJ {
 		function. Returns any string value returned by the macro, null
 		if the macro does not return a value, or "[aborted]" if the
 		macro was aborted due to an error.  */
-	public static String runMacro(String macro, String arg) {
+	public static String runMacro(final String macro, final String arg) {
 		if(EventQueue.isDispatchThread()){
 			Macro_Runner mr = new Macro_Runner();
 			return mr.runMacro(macro, arg);

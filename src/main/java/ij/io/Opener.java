@@ -89,7 +89,7 @@ public class Opener {
 	 * @see ij.IJ#open(String)
 	 * @see ij.IJ#openImage(String)
 	*/
-	public void open(String path) {
+	public void open(final String path) {
 		if(!path.startsWith("http") || EventQueue.isDispatchThread()){
 			openPath(path);
 		}
