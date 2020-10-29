@@ -18,11 +18,11 @@ import java.awt.event.*;
 import java.util.*;
 import java.awt.geom.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import javax.swing.JPopupMenu;
+import javax.swing.JPanel;
 
 /** This is a Canvas used to display images in a Window. */
-public class ImageCanvas extends Canvas implements MouseListener, MouseMotionListener, Cloneable {
-
+public class ImageCanvas extends JPanel implements MouseListener, MouseMotionListener, Cloneable {
 	private static final int LONG_CLICK_THRESHOLD = 750; //ms
 	protected static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	protected static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
@@ -1309,7 +1309,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				return;					
 			}
 		}
-		PopupMenu popup = Menus.getPopupMenu();
+		JPopupMenu popup = Menus.getPopupMenu();
 		if (popup!=null) {
 			add(popup);
 			if (IJ.isMacOSX()) IJ.wait(10);

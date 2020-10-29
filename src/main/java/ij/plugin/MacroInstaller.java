@@ -10,6 +10,8 @@ import ij.util.Tools;
 import ij.io.*;
 import ij.macro.MacroConstants;
 import ij.plugin.frame.*;
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 import java.util.*;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 
 /** This plugin implements the Plugins/Macros/Install Macros command. It is also used by the Editor
@@ -293,14 +295,14 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
         if (h==null) return;
         String[] commands = (String[])h.get(name);
         if (commands==null) return;
-        PopupMenu popup = Menus.getPopupMenu();
+        JPopupMenu popup = Menus.getPopupMenu();
         if (popup==null) return;
 		popup.removeAll();
         for (int i=0; i<commands.length; i++) {
 			if (commands[i].equals("-"))
 				popup.addSeparator();
 			else {
-				MenuItem mi = new MenuItem(commands[i]);
+				JMenuItem mi = new JMenuItem(commands[i]);
 				mi.addActionListener(this);
 				popup.add(mi);
 			}
