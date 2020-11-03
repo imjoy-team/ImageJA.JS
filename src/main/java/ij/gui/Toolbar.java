@@ -4,9 +4,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import javax.swing.JPopupMenu;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import java.io.File;
 import java.util.*;
 import ij.*;
@@ -44,7 +41,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int CUSTOM7 = 21;
 	
 	public static final int DOUBLE_CLICK_THRESHOLD = 650; //ms
-	private static final int LONG_CLICK_THRESHOLD = 500; //ms
+	private static final int LONG_PRESS_THRESHOLD = 500; //ms
 
 	public static final int RECT_ROI=0, ROUNDED_RECT_ROI=1, ROTATED_RECT_ROI=2;
 	public static final int OVAL_ROI=0, ELLIPSE_ROI=1, BRUSH_ROI=2;
@@ -80,7 +77,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private String[] names = new String[MAX_TOOLS];
 	private String[] icons = new String[MAX_TOOLS];
 	private PlugInTool[] tools = new PlugInTool[MAX_TOOLS];
-	private JPopupMenu[] menus = new JPopupMenu[MAX_TOOLS];
+	private PopupMenu[] menus = new PopupMenu[MAX_TOOLS];
 	private int nExtraTools;
 	private MacroInstaller macroInstaller;
 	private boolean addingSingleTool;
@@ -89,11 +86,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private int pc;
 	private String icon;
 	private int startupTime;
-	private JPopupMenu rectPopup, ovalPopup, pointPopup, linePopup, zoomPopup, pickerPopup, switchPopup;	
-	private JCheckBoxMenuItem rectItem, roundRectItem, rotatedRectItem;	
-	private JCheckBoxMenuItem ovalItem, ellipseItem, brushItem;	
-	private JCheckBoxMenuItem pointItem, multiPointItem;	
-	private JCheckBoxMenuItem straightLineItem, polyLineItem, freeLineItem, arrowItem;
+	private PopupMenu rectPopup, ovalPopup, pointPopup, linePopup, zoomPopup, pickerPopup, switchPopup;
+	private CheckboxMenuItem rectItem, roundRectItem, rotatedRectItem;
+	private CheckboxMenuItem ovalItem, ellipseItem, brushItem;
+	private CheckboxMenuItem pointItem, multiPointItem;
+	private CheckboxMenuItem straightLineItem, polyLineItem, freeLineItem, arrowItem;
 	private String currentSet = "Startup Macros";
 	private Timer pressTimer;
 
@@ -160,63 +157,63 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 
 	void addPopupMenus() {
-		rectPopup = new JPopupMenu();	
-		if (Menus.getFontSize()!=0)	
-			rectPopup.setFont(Menus.getFont());	
-		rectItem = new JCheckBoxMenuItem("Rectangle", rectType==RECT_ROI);	
-		rectItem.addItemListener(this);	
-		rectPopup.add(rectItem);	
-		roundRectItem = new JCheckBoxMenuItem("Rounded Rectangle", rectType==ROUNDED_RECT_ROI);	
-		roundRectItem.addItemListener(this);	
-		rectPopup.add(roundRectItem);	
-		rotatedRectItem = new JCheckBoxMenuItem("Rotated Rectangle", rectType==ROTATED_RECT_ROI);	
-		rotatedRectItem.addItemListener(this);	
-		rectPopup.add(rotatedRectItem);	
-		// add(rectPopup);
+		rectPopup = new PopupMenu();
+		if (Menus.getFontSize()!=0)
+			rectPopup.setFont(Menus.getFont());
+		rectItem = new CheckboxMenuItem("Rectangle", rectType==RECT_ROI);
+		rectItem.addItemListener(this);
+		rectPopup.add(rectItem);
+		roundRectItem = new CheckboxMenuItem("Rounded Rectangle", rectType==ROUNDED_RECT_ROI);
+		roundRectItem.addItemListener(this);
+		rectPopup.add(roundRectItem);
+		rotatedRectItem = new CheckboxMenuItem("Rotated Rectangle", rectType==ROTATED_RECT_ROI);
+		rotatedRectItem.addItemListener(this);
+		rectPopup.add(rotatedRectItem);
+		add(rectPopup);
 
-		ovalPopup = new JPopupMenu();	
-		if (Menus.getFontSize()!=0)	
-			ovalPopup.setFont(Menus.getFont());	
-		ovalItem = new JCheckBoxMenuItem("Oval selections", ovalType==OVAL_ROI);	
-		ovalItem.addItemListener(this);	
-		ovalPopup.add(ovalItem);	
-		ellipseItem = new JCheckBoxMenuItem("Elliptical selections", ovalType==ELLIPSE_ROI);	
-		ellipseItem.addItemListener(this);	
-		ovalPopup.add(ellipseItem);	
-		brushItem = new JCheckBoxMenuItem("Selection Brush Tool", ovalType==BRUSH_ROI);	
-		brushItem.addItemListener(this);	
-		ovalPopup.add(brushItem);	
-		// add(ovalPopup);
+		ovalPopup = new PopupMenu();
+		if (Menus.getFontSize()!=0)
+			ovalPopup.setFont(Menus.getFont());
+		ovalItem = new CheckboxMenuItem("Oval selections", ovalType==OVAL_ROI);
+		ovalItem.addItemListener(this);
+		ovalPopup.add(ovalItem);
+		ellipseItem = new CheckboxMenuItem("Elliptical selections", ovalType==ELLIPSE_ROI);
+		ellipseItem.addItemListener(this);
+		ovalPopup.add(ellipseItem);
+		brushItem = new CheckboxMenuItem("Selection Brush Tool", ovalType==BRUSH_ROI);
+		brushItem.addItemListener(this);
+		ovalPopup.add(brushItem);
+		add(ovalPopup);
 
-		pointPopup = new JPopupMenu();	
-		if (Menus.getFontSize()!=0)	
-			pointPopup.setFont(Menus.getFont());	
-		pointItem = new JCheckBoxMenuItem("Point Tool", !multiPointMode);	
-		pointItem.addItemListener(this);	
-		pointPopup.add(pointItem);	
-		multiPointItem = new JCheckBoxMenuItem("Multi-point Tool", multiPointMode);	
-		multiPointItem.addItemListener(this);	
-		pointPopup.add(multiPointItem);	
-		// add(pointPopup);	
+		pointPopup = new PopupMenu();
+		if (Menus.getFontSize()!=0)
+			pointPopup.setFont(Menus.getFont());
+		pointItem = new CheckboxMenuItem("Point Tool", !multiPointMode);
+		pointItem.addItemListener(this);
+		pointPopup.add(pointItem);
+		multiPointItem = new CheckboxMenuItem("Multi-point Tool", multiPointMode);
+		multiPointItem.addItemListener(this);
+		pointPopup.add(multiPointItem);
+		add(pointPopup);
 
-		linePopup = new JPopupMenu();	
-		if (Menus.getFontSize()!=0)	
-			linePopup.setFont(Menus.getFont());	
-		straightLineItem = new JCheckBoxMenuItem("Straight Line", lineType==LINE&&!arrowMode);	
-		straightLineItem.addItemListener(this);	
-		linePopup.add(straightLineItem);	
-		polyLineItem = new JCheckBoxMenuItem("Segmented Line", lineType==POLYLINE);	
-		polyLineItem.addItemListener(this);	
-		linePopup.add(polyLineItem);	
-		freeLineItem = new JCheckBoxMenuItem("Freehand Line", lineType==FREELINE);	
-		freeLineItem.addItemListener(this);	
-		linePopup.add(freeLineItem);	
-		arrowItem = new JCheckBoxMenuItem("Arrow tool", lineType==LINE&&!arrowMode);	
-		arrowItem.addItemListener(this);	
-		linePopup.add(arrowItem);	
-		// add(linePopup);
+		linePopup = new PopupMenu();
+		if (Menus.getFontSize()!=0)
+			linePopup.setFont(Menus.getFont());
+		straightLineItem = new CheckboxMenuItem("Straight Line", lineType==LINE&&!arrowMode);
+		straightLineItem.addItemListener(this);
+		linePopup.add(straightLineItem);
+		polyLineItem = new CheckboxMenuItem("Segmented Line", lineType==POLYLINE);
+		polyLineItem.addItemListener(this);
+		linePopup.add(polyLineItem);
+		freeLineItem = new CheckboxMenuItem("Freehand Line", lineType==FREELINE);
+		freeLineItem.addItemListener(this);
+		linePopup.add(freeLineItem);
+		arrowItem = new CheckboxMenuItem("Arrow tool", lineType==LINE&&!arrowMode);
+		arrowItem.addItemListener(this);
+		linePopup.add(arrowItem);
+		add(linePopup);
 
-		zoomPopup = new JPopupMenu();
+		zoomPopup = new PopupMenu();
 		if (Menus.getFontSize()!=0)
 			zoomPopup.setFont(Menus.getFont());
 		addMenuItem(zoomPopup, "Reset Zoom");
@@ -227,31 +224,33 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addMenuItem(zoomPopup, "Scale to Fit");
 		addMenuItem(zoomPopup, "Set...");
 		addMenuItem(zoomPopup, "Maximize");
-		// add(zoomPopup);
+		add(zoomPopup);
 
-		pickerPopup = new JPopupMenu();	
-		if (Menus.getFontSize()!=0)	
+		pickerPopup = new PopupMenu();
+		if (Menus.getFontSize()!=0)
 			pickerPopup.setFont(Menus.getFont());
-		addMenuItem(pickerPopup, "White/Black");	
-		addMenuItem(pickerPopup, "Black/White");	
-		addMenuItem(pickerPopup, "Red");	
-		addMenuItem(pickerPopup, "Green");	
-		addMenuItem(pickerPopup, "Blue");	
-		addMenuItem(pickerPopup, "Yellow");	
-		addMenuItem(pickerPopup, "Cyan");	
-		addMenuItem(pickerPopup, "Magenta");	
-		pickerPopup.addSeparator();	
-		addMenuItem(pickerPopup, "Color Picker");
-		// add(pickerPopup);
-
-		switchPopup = new JPopupMenu();
+		addMenuItem(pickerPopup, "White/Black");
+		addMenuItem(pickerPopup, "Black/White");
+		addMenuItem(pickerPopup, "Red");
+		addMenuItem(pickerPopup, "Green");
+		addMenuItem(pickerPopup, "Blue");
+		addMenuItem(pickerPopup, "Yellow");
+		addMenuItem(pickerPopup, "Cyan");
+		addMenuItem(pickerPopup, "Magenta");
+		pickerPopup.addSeparator();
+		addMenuItem(pickerPopup, "Foreground...");
+		addMenuItem(pickerPopup, "Background...");
+		addMenuItem(pickerPopup, "Color Picker...");
+		add(pickerPopup);
+		
+		switchPopup = new PopupMenu();
 		if (Menus.getFontSize()!=0)
 			switchPopup.setFont(Menus.getFont());
-		// add(switchPopup);
+		add(switchPopup);
 	}
 	
-	private void addMenuItem(JPopupMenu menu, String command) {
-		JMenuItem item = new JMenuItem(command);
+	private void addMenuItem(PopupMenu menu, String command) {
+		MenuItem item = new MenuItem(command);
 		item.addActionListener(this);
 		menu.add(item);
 	}
@@ -574,7 +573,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (pc>=icon.length()) break;
 			}
 		}
-		if (menus[tool]!=null && menus[tool].getComponentCount()>0) { 
+		if (menus[tool]!=null && menus[tool].getItemCount()>0) { 
 			xOffset = x; yOffset = y;
 			drawTriangle(15, 16);
 		}
@@ -628,8 +627,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			IJ.showStatus(name);
 			return;
 		}
-		String hint = " (alt or long click to switch)";
-		String hint2 = " (alt or long click to switch; double click to configure)";
+		String hint = " (long press to switch)";
+		String hint2 = " (long press to switch; double click to configure)";
 		switch (tool) {
 			case RECTANGLE:
 				if (rectType==ROUNDED_RECT_ROI)
@@ -678,7 +677,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				IJ.showStatus("Text tool (double-click to configure)");
 				return;
 			case MAGNIFIER:
-				IJ.showStatus("Magnifying glass (or \"+\" and \"-\" keys; alt or long click for menu)");
+				IJ.showStatus("Magnifying glass (or \"+\" and \"-\" keys; long press for menu)");
 				return;
 			case HAND:
 				IJ.showStatus("Scrolling tool (or press space bar and drag)");
@@ -686,7 +685,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case DROPPER:
 				String fg = foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue();
 				String bg = backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue();
-				IJ.showStatus("Color picker " +  fg + "/"+ bg + " (long click for menu)");
+				IJ.showStatus("Color picker " +  fg + "/"+ bg + " (long press for menu)");
 				return;
 			case ANGLE:
 				IJ.showStatus("Angle tool");
@@ -1176,7 +1175,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		}
 		if (!isValidTool(newTool))
 			return;
-		if (menus[newTool]!=null && menus[newTool].getComponentCount()>0) {
+		if (menus[newTool]!=null && menus[newTool].getItemCount()>0) {
             menus[newTool].show(e.getComponent(), e.getX(), e.getY());
 			return;
 		}
@@ -1251,7 +1250,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					}
 					triggerPopupMenu(newTool, e, true, true);
 				}
-			}, LONG_CLICK_THRESHOLD);
+			}, LONG_PRESS_THRESHOLD);
 		}
 		
 	}
@@ -1304,7 +1303,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addItem("Restore Startup Tools");
 		addItem("Remove Custom Tools");
 		addItem("Help...");
-		// add(ovalPopup);
+		add(ovalPopup);
 		if (IJ.isMacOSX()) IJ.wait(10);
 		switchPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -1352,21 +1351,21 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 
     private void addBuiltInTool(String name) {
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem(name, name.equals(currentSet));
+		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
 		item.addItemListener(this);
 		item.setActionCommand("Tool");
 		switchPopup.add(item);
     }
 
     private void addPluginTool(String name) {
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem(name, name.equals(currentSet));
+		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
 		item.addItemListener(this);
 		item.setActionCommand("Plugin Tool");
 		switchPopup.add(item);
     }
 
     private void addItem(String name) {
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem(name, name.equals(currentSet));
+		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
 		item.addItemListener(this);
 		switchPopup.add(item);
     }
@@ -1402,131 +1401,131 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public void mouseExited(MouseEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
-	public void mouseDragged(MouseEvent e) {}
-	public void itemStateChanged(ItemEvent e) {	
-		JCheckBoxMenuItem item = (JCheckBoxMenuItem)e.getSource();	
-		String previousName = getToolName();	
-		if (item==rectItem || item==roundRectItem || item==rotatedRectItem) {	
-			if (item==roundRectItem)	
-				rectType = ROUNDED_RECT_ROI;	
-			else if (item==rotatedRectItem)	
-				rectType = ROTATED_RECT_ROI;	
-			else	
-				rectType = RECT_ROI;	
-			repaintTool(RECTANGLE);	
-			showMessage(RECTANGLE);	
-			ImagePlus imp = WindowManager.getCurrentImage();	
-			Roi roi = imp!=null?imp.getRoi():null;	
-			if (roi!=null && roi.getType()==Roi.RECTANGLE)	
-				roi.setCornerDiameter(rectType==ROUNDED_RECT_ROI?arcSize:0);	
-			if (!previousName.equals(getToolName()))	
-				IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);	
-		} else if (item==ovalItem || item==ellipseItem || item==brushItem) {	
-			if (item==brushItem)	
-				ovalType = BRUSH_ROI;	
-			else if (item==ellipseItem)	
-				ovalType = ELLIPSE_ROI;	
-			else	
-				ovalType = OVAL_ROI;	
-			repaintTool(OVAL);	
-			showMessage(OVAL);	
-			if (!previousName.equals(getToolName()))	
-				IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);	
-		} else if (item==pointItem || item==multiPointItem) {	
-			multiPointMode = item==multiPointItem;	
-			Prefs.multiPointMode = multiPointMode;	
-			repaintTool(POINT);	
-			showMessage(POINT);	
-			if (!previousName.equals(getToolName()))	
-				IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);	
-		} else if (item==straightLineItem) {	
-			lineType = LINE;	
-			arrowMode = false;	
-			setTool2(LINE);	
-			showMessage(LINE);	
-		} else if (item==polyLineItem) {	
-			lineType = POLYLINE;	
-			setTool2(POLYLINE);	
-			showMessage(POLYLINE);	
-		} else if (item==freeLineItem) {	
-			lineType = FREELINE;	
-			setTool2(FREELINE);	
-			showMessage(FREELINE);	
-		} else if (item==arrowItem) {	
-			lineType = LINE;	
-			arrowMode = true;	
-			setTool2(LINE);	
-			showMessage(LINE);	
-		} else {	
-			String label = item.getLabel();	
-			String cmd = item.getActionCommand();	
-			boolean isTool = cmd.equals("Tool") || cmd.equals("Plugin Tool");	
-			if (!(label.equals("Help...")||label.equals("Remove Custom Tools")) && !isTool && !label.endsWith("Tool") && !label.endsWith("Tool "))	
-				currentSet = label;	
-			if (isTool) {	
-				if (cmd.equals("Tool")) // built in tool	
-					installBuiltinTool(label);	
-				else  // plugin or macro tool in ImageJ/plugins/Tools	
-					IJ.run(label);	
-				return;	
-			}	
-			String path;	
-			if (label.equals("Remove Custom Tools")) {	
-				removeTools();	
-			} else if (label.equals("Restore Startup Tools")) {	
-				removeTools();	
-				installStartupMacros();	
-			} else if (label.equals("Help...")) {	
-				IJ.showMessage("Tool Switcher and Loader",	
-					"Use this drop down menu to switch to alternative\n"+	
-					"macro toolsets or to load additional plugin tools.\n"+	
-					"The toolsets listed in the menu are located\n"+	
-					"in the ImageJ/macros/toolsets folder and the\n"+	
-					"plugin tools are the ones installed in the\n"+	
-					"Plugins>Tools submenu.\n"+	
-					" \n"+	
-					"Hold the shift key down while selecting a\n"+	
-					"toolset to view its source code.\n"+	
-					" \n"+	
-					"More macro toolsets are available at\n"+	
-					"  <"+IJ.URL+"/macros/toolsets/>\n"+	
-					" \n"+	
-					"Plugin tools can be downloaded from\n"+	
-					"the Tools section of the Plugins page at\n"+	
-					"  <"+IJ.URL+"/plugins/>\n"	
-					);	
-				return;	
-			} else if (label.endsWith("*")) {	
-                // load from ij.jar	
-                MacroInstaller mi = new MacroInstaller();	
-                label = label.substring(0, label.length()-1) + ".txt";	
-                path = "/macros/"+label;	
-                if (IJ.shiftKeyDown())	
-				    showCode(label, mi.openFromIJJar(path));	
-				else {	
-				    resetTools();	
-				    mi.installFromIJJar(path);	
-                }	
-            } else {	
-                // load from ImageJ/macros/toolsets	
-                if (label.equals("Startup Macros")) {	
-                	installStartupMacros();	
-                	return;	
-                } else if (label.endsWith(" "))	
-                    path = IJ.getDir("macros")+"toolsets"+File.separator+label.substring(0, label.length()-1)+".ijm";	
-                else	
-                    path = IJ.getDir("macros")+"toolsets"+File.separator+label+".txt";	
-                try {	
-                    if (IJ.shiftKeyDown()) {	
-                        IJ.open(path);	
-                		IJ.setKeyUp(KeyEvent.VK_SHIFT);	
-                    } else	
-                        new MacroInstaller().run(path);	
-                } catch(Exception ex) {}	
-            }	
-		}	
-	}	
-
+	public void  mouseDragged(MouseEvent e) {}
+	
+	public void itemStateChanged(ItemEvent e) {
+		CheckboxMenuItem item = (CheckboxMenuItem)e.getSource();
+		String previousName = getToolName();
+		if (item==rectItem || item==roundRectItem || item==rotatedRectItem) {
+			if (item==roundRectItem)
+				rectType = ROUNDED_RECT_ROI;
+			else if (item==rotatedRectItem)
+				rectType = ROTATED_RECT_ROI;
+			else
+				rectType = RECT_ROI;
+			repaintTool(RECTANGLE);
+			showMessage(RECTANGLE);
+			ImagePlus imp = WindowManager.getCurrentImage();
+			Roi roi = imp!=null?imp.getRoi():null;
+			if (roi!=null && roi.getType()==Roi.RECTANGLE)
+				roi.setCornerDiameter(rectType==ROUNDED_RECT_ROI?arcSize:0);
+			if (!previousName.equals(getToolName()))
+				IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);
+		} else if (item==ovalItem || item==ellipseItem || item==brushItem) {
+			if (item==brushItem)
+				ovalType = BRUSH_ROI;
+			else if (item==ellipseItem)
+				ovalType = ELLIPSE_ROI;
+			else
+				ovalType = OVAL_ROI;
+			repaintTool(OVAL);
+			showMessage(OVAL);
+			if (!previousName.equals(getToolName()))
+				IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);
+		} else if (item==pointItem || item==multiPointItem) {
+			multiPointMode = item==multiPointItem;
+			Prefs.multiPointMode = multiPointMode;
+			repaintTool(POINT);
+			showMessage(POINT);
+			if (!previousName.equals(getToolName()))
+				IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);
+		} else if (item==straightLineItem) {
+			lineType = LINE;
+			arrowMode = false;
+			setTool2(LINE);
+			showMessage(LINE);
+		} else if (item==polyLineItem) {
+			lineType = POLYLINE;
+			setTool2(POLYLINE);
+			showMessage(POLYLINE);
+		} else if (item==freeLineItem) {
+			lineType = FREELINE;
+			setTool2(FREELINE);
+			showMessage(FREELINE);
+		} else if (item==arrowItem) {
+			lineType = LINE;
+			arrowMode = true;
+			setTool2(LINE);
+			showMessage(LINE);
+		} else {
+			String label = item.getLabel();
+			String cmd = item.getActionCommand();
+			boolean isTool = cmd.equals("Tool") || cmd.equals("Plugin Tool");
+			if (!(label.equals("Help...")||label.equals("Remove Custom Tools")) && !isTool && !label.endsWith("Tool") && !label.endsWith("Tool "))
+				currentSet = label;
+			if (isTool) {
+				if (cmd.equals("Tool")) // built in tool
+					installBuiltinTool(label);
+				else  // plugin or macro tool in ImageJ/plugins/Tools
+					IJ.run(label);
+				return;
+			}
+			String path;
+			if (label.equals("Remove Custom Tools")) {
+				removeTools();
+			} else if (label.equals("Restore Startup Tools")) {
+				removeTools();
+				installStartupMacros();
+			} else if (label.equals("Help...")) {
+				IJ.showMessage("Tool Switcher and Loader",
+					"Use this drop down menu to switch to alternative\n"+
+					"macro toolsets or to load additional plugin tools.\n"+
+					"The toolsets listed in the menu are located\n"+
+					"in the ImageJ/macros/toolsets folder and the\n"+
+					"plugin tools are the ones installed in the\n"+
+					"Plugins>Tools submenu.\n"+
+					" \n"+
+					"Hold the shift key down while selecting a\n"+
+					"toolset to view its source code.\n"+
+					" \n"+
+					"More macro toolsets are available at\n"+
+					"  <"+IJ.URL+"/macros/toolsets/>\n"+
+					" \n"+
+					"Plugin tools can be downloaded from\n"+
+					"the Tools section of the Plugins page at\n"+
+					"  <"+IJ.URL+"/plugins/>\n"
+					);
+				return;
+			} else if (label.endsWith("*")) {
+                // load from ij.jar
+                MacroInstaller mi = new MacroInstaller();
+                label = label.substring(0, label.length()-1) + ".txt";
+                path = "/macros/"+label;
+                if (IJ.shiftKeyDown())
+				    showCode(label, mi.openFromIJJar(path));
+				else {
+				    resetTools();
+				    mi.installFromIJJar(path);
+                }
+            } else {
+                // load from ImageJ/macros/toolsets
+                if (label.equals("Startup Macros")) {
+                	installStartupMacros();
+                	return;
+                } else if (label.endsWith(" "))
+                    path = IJ.getDir("macros")+"toolsets"+File.separator+label.substring(0, label.length()-1)+".ijm";
+                else
+                    path = IJ.getDir("macros")+"toolsets"+File.separator+label+".txt";
+                try {
+                    if (IJ.shiftKeyDown()) {
+                        IJ.open(path);
+                		IJ.setKeyUp(KeyEvent.VK_SHIFT);
+                    } else
+                        new MacroInstaller().run(path);
+                } catch(Exception ex) {}
+            }
+		}
+	}
 	
 	private void removeTools() {
 		removeMacroTools();
@@ -1590,9 +1589,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		JMenuItem item = (JMenuItem)e.getSource();
+		MenuItem item = (MenuItem)e.getSource();
 		String cmd = e.getActionCommand();
-		JPopupMenu popup = (JPopupMenu)item.getParent();
+		PopupMenu popup = (PopupMenu)item.getParent();
 		
 		if (zoomPopup==popup) {
 			if ("Zoom In".equals(cmd))
@@ -1735,10 +1734,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
         if (commands==null)
         	return;
 		if (menus[tool]==null) {
-			menus[tool] = new JPopupMenu("");
+			menus[tool] = new PopupMenu("");
 			if (Menus.getFontSize()!=0)
 				menus[tool].setFont(Menus.getFont());
-			// add(menus[tool] );
+			add(menus[tool] );
 		} else
 			menus[tool].removeAll();
         for (int i=0; i<commands.length; i++) {
@@ -1751,7 +1750,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				String command = commands[i];
 				if (disable)
 					command = command.substring(1);
-				JMenuItem mi = new JMenuItem(command);
+				MenuItem mi = new MenuItem(command);
 				if (disable)
 					mi.setEnabled(false);
 				mi.addActionListener(this);
