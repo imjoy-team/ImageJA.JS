@@ -32,6 +32,8 @@ unzip -q -o ${IJ1_VERSION}.zip
 rm ${IJ1_VERSION}.zip
 rm -rf ${IJ1_VERSION}
 mv ImageJ ${IJ1_VERSION}
+# Remove the command finder tool
+awk '!/Command Finder Built-in Tool/' ${IJ1_VERSION}/macros/StartupMacros.txt > temp && mv temp ${IJ1_VERSION}/macros/StartupMacros.txt
 
 cp ../target/${IJ_JAR} ${IJ1_VERSION}/
 cd ${IJ1_VERSION}
