@@ -18,7 +18,7 @@ public class JSFileChooser extends JFileChooser {
     // Getting a file from javascript
 	// Either selected from internal file system or uploaded
     private static String jsFilePath;
-    private static boolean userSelected;
+    private static Object jsLock;
 	public interface Promise{
 		void resolve(String result);
 		void reject(String error);
@@ -26,58 +26,26 @@ public class JSFileChooser extends JFileChooser {
 
 	public static String showFileDialogJS(String func, String title, String initPath, int selectionMode){
         jsFilePath = null;
-        userSelected = false;
-        if(EventQueue.isDispatchThread()){
-            Global.jsCall(func, title, initPath, selectionMode, new Promise(){
-                public void resolve(String path){
-                    // make sure it's not null
-                    if(path == null) path = "";
-                    jsFilePath = path;
-                    userSelected = true;
-                }
-                public void reject(String error){
-                    jsFilePath = null;
-                    userSelected = true;
-                }
-            });
-            while(!userSelected){
-                try {
-                    Thread.sleep(500);
-                } catch (Exception e) {
-                    break;
-                }
-                
+        jsLock = new Object();
+        Global.jsCall(func, title, initPath, selectionMode, new Promise(){
+            public void resolve(String path){
+                // make sure it's not null
+                if(path == null) path = "";
+                jsFilePath = path;
+                jsLock.notify();
             }
+            public void reject(String error){
+                jsFilePath = null;
+                jsLock.notify();
+            }
+        });
+        try{
+            jsLock.wait();  
         }
-        else{
-            Global.jsCall(func, title, initPath, selectionMode, new Promise(){
-                public void resolve(String path){
-                    // make sure it's not null
-                    if(path == null) path = "";
-                    jsFilePath = path;
-                    userSelected = true;
-                }
-                public void reject(String error){
-                    jsFilePath = null;
-                    userSelected = true;
-                }
-            });
-            try {
-                // block execution until we get the file path from js
-                EventQueue.invokeAndWait(new Runnable() {
-                    public void run() {
-                        while(!userSelected){
-                            try {
-                                Thread.sleep(500);
-                            } catch (Exception e) {
-                                break;
-                            }
-                            
-                        }
-                    }
-                });
-            } catch (Exception e) {}
+        catch(InterruptedException e){
+            return null;
         }
+        
 		return jsFilePath;
     }
 
