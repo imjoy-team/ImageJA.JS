@@ -25,6 +25,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: 1.53f
-          name: ${{ GITHUB_WORKFLOW }}
+          name: ImageJ.JS
           files: imagej-js-dist/
           allow_override: true
