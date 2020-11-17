@@ -23,8 +23,8 @@ jobs:
         run: bash compile-js.sh
       - name: Set enviroment for github-release
         run: |
-          echo ::set-env name=RELEASE_TAG::"1.53f"
-          echo ::set-env name=RELEASE_NAME::"$GITHUB_WORKFLOW"
+          echo "name=RELEASE_TAG::\"1.53f\"" >> $GITHUB_ENV
+          echo "name=RELEASE_NAME::\"$GITHUB_WORKFLOW\"" >> $GITHUB_ENV
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
