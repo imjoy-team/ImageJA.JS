@@ -2483,7 +2483,6 @@ public class IJ {
 		}
 		ImagePlus imp = new ImagePlus(title, stack);
 		imp.setDimensions(channels, slices, frames);
-		imp.show();
 		return imp;
 	 }
 
