@@ -100,6 +100,11 @@ public class Opener {
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						openPath(path);
+						try{
+							Global.jsCall("onOpenResolve");
+						}
+						finally{
+						}
 					}
 				});
 			} catch (Exception e) {

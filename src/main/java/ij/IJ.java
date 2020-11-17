@@ -27,7 +27,7 @@ import java.security.cert.*;
 import java.security.KeyStore;
 import java.nio.ByteBuffer;
 import java.math.RoundingMode;
-
+import com.leaningtech.client.Global;
 
 /** This class consists of static utility methods. */
 public class IJ {
@@ -156,6 +156,42 @@ public class IJ {
 		if the macro does not return a value, or "[aborted]" if the
 		macro was aborted due to an error.  */
 	public static String runMacro(final String macro, final String arg) {
+		if(EventQueue.isDispatchThread()){
+			Macro_Runner mr = new Macro_Runner();
+			return mr.runMacro(macro, arg);
+		}
+		else{
+			// for ImageJ.JS we need to run in a separate thread
+			try {
+				new Thread(new Runnable() {
+					public void run() {
+						Macro_Runner mr = new Macro_Runner();
+						try{
+							String macroResult = mr.runMacro(macro, arg);
+							try{
+								Global.jsCall("onMacroResolve", macroResult);
+							}
+							finally{
+							}
+						}
+						catch(Exception e){
+							try{
+								// e.printStackTrace();	
+								Global.jsCall("onMacroReject", e.toString());
+							}
+							finally{
+							}
+						}
+					}
+				}).start();
+			} catch (Exception e) {
+				System.out.println(e.toString());
+			}
+			return null;
+		}
+	}
+
+	public static String runMacroAsync(final String macro, final String arg) {
 		if(EventQueue.isDispatchThread()){
 			Macro_Runner mr = new Macro_Runner();
 			return mr.runMacro(macro, arg);
@@ -2390,6 +2426,64 @@ public class IJ {
 		imp.setOpenAsHyperStack(true);
 		if (type.contains("label"))
 			HyperStackMaker.labelHyperstack(imp);
+		return imp;
+	 }
+
+	 public static FileInfo createFileInfo(byte [] bytes, int imageType, int width, int height, int nImages){
+		FileInfo fi = new FileInfo();
+    	fi.width = width;
+    	fi.height = height;
+    	fi.nImages = nImages;
+		fi.whiteIsZero = false;
+		// we need to set intel byte order for js typedarray byte ordering
+		fi.intelByteOrder = true;
+		fi.inputStream = new ByteArrayInputStream(bytes);
+
+    	switch (imageType) {
+			case ImagePlus.GRAY8: case ImagePlus.COLOR_256:
+				if (imageType==ImagePlus.COLOR_256)
+					fi.fileType = FileInfo.COLOR8;
+				else
+					fi.fileType = FileInfo.GRAY8;
+				break;
+	    	case ImagePlus.GRAY16:
+				fi.fileType = fi.GRAY16_UNSIGNED;
+				break;
+	    	case ImagePlus.GRAY32:
+				fi.fileType = fi.GRAY32_FLOAT;
+				break;
+	    	case ImagePlus.COLOR_RGB:
+				fi.fileType = fi.RGB;
+				break;
+			default:
+    	}
+    	return fi;
+	 }
+
+	 public static ImagePlus createImagePlus(byte[] bytes, int imageType, int[] shape, String title) {
+		int height = shape[3];
+		int width = shape[4];
+		int channels = shape[2];
+		int slices = shape[1];
+		int frames = shape[0];
+		FileInfo fi = createFileInfo(bytes, imageType, width, height, channels*slices*frames);
+		ImageReader reader = new ImageReader(fi);
+		InputStream is = fi.inputStream;
+		ImageStack stack = new ImageStack(width, height, channels*slices*frames);
+		for (int c=1; c<=channels; c++) {
+			if (channels==1) c = 1;
+			for (int z=1; z<=slices; z++) {
+				if (slices==1) z = 1;
+				for (int t=1; t<=frames; t++) {
+					if (frames==1) t = 1;
+					int n1 = (t-1)*channels*slices + (z-1)*channels + c;
+					stack.setPixels(reader.readPixels(is, 0L), n1);
+				}
+			}
+		}
+		ImagePlus imp = new ImagePlus(title, stack);
+		imp.setDimensions(channels, slices, frames);
+		imp.show();
 		return imp;
 	 }
 
