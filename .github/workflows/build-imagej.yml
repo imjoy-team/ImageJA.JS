@@ -21,14 +21,10 @@ jobs:
           java-version: 1.8
       - name: Compile ImageJ.JS
         run: bash compile-js.sh
-      - name: Set enviroment for github-release
-        run: |
-          echo "name=RELEASE_TAG::\"1.53f\"" >> $GITHUB_ENV
-          echo "name=RELEASE_NAME::\"$GITHUB_WORKFLOW\"" >> $GITHUB_ENV
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.RELEASE_TAG }}
-          name: ${{ env.RELEASE_NAME }}
+          tag: 1.53f
+          name: $GITHUB_WORKFLOW
           files: imagej-js-dist/
           allow_override: true
