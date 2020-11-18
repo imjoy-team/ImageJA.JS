@@ -1215,6 +1215,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			if (functionFinder!=null)
 				functionFinder.close();
 		}
+		try{
+			Global.jsCall("onEditorClose", getTitle(), ta.getText());
+		}
+		finally{
+		}
 	}
 
 	public void saveAs() {
