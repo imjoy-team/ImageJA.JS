@@ -334,7 +334,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ta.setCaretPosition(txt.length());
 		}
 		Menu shareMenu = new Menu("Share");		
-		shareMenu.add(new MenuItem("Share via URL"));	
+		shareMenu.add(new MenuItem("Share via URL"));
+		shareMenu.add(new MenuItem("Share via QR Code"));
 		shareMenu.add(new MenuItem("Share via Github"));
 		shareMenu.addActionListener(this);
 		mb.add(shareMenu);
@@ -812,6 +813,9 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		else if ("Share via URL".equals(what)){
 			Global.jsCall("shareViaURL", getTitle(), ta.getText());
+		}
+		else if ("Share via QR Code".equals(what)){
+			Global.jsCall("shareViaQRCode", getTitle(), ta.getText());
 		}
 		else if ("Share via Github".equals(what)){
 			Global.jsCall("shareViaGithub", getTitle(), ta.getText());
