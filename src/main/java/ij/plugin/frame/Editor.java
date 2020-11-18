@@ -248,6 +248,15 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (top<0) top = 0;
 		if (nWindows<=0 || xoffset>8*XINC)
 			{xoffset=0; yoffset=0;}
+		int w = 560;
+		int h = 320;
+		if(w>screen.width){
+			w = screen.width;
+		}
+		if(h>screen.height){
+			h = screen.height;
+		}
+		setSize(w, h);
 		setLocation(left+xoffset, top+yoffset);
 		xoffset+=XINC; yoffset+=YINC;
 		nWindows++;
