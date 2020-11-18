@@ -154,7 +154,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			public void textValueChanged( final TextEvent t )
 			{
 				try{
-					Global.jsCall("onEditorTextChanged");
+					Global.jsCall("onEditorTextChanged", getTitle(), ta.getText());
 				}
 				finally{
 				}
@@ -324,6 +324,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			String txt = ta.getText();
 			ta.setCaretPosition(txt.length());
 		}
+		Menu shareMenu = new Menu("Share");		
+		shareMenu.add(new MenuItem("Share via URL"));	
+		shareMenu.add(new MenuItem("Share via Github"));
+		shareMenu.addActionListener(this);
+		mb.add(shareMenu);
 		WindowManager.setWindow(this);
 		checkForCurlyQuotes = true;
 		changes = false;
@@ -795,6 +800,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		else if ("Reload Plugin".equals(what)){
 			Global.jsCall("reloadImJoyPlugin", ta.getText());
+		}
+		else if ("Share via URL".equals(what)){
+			Global.jsCall("shareViaURL", getTitle(), ta.getText());
+		}
+		else if ("Share via Github".equals(what)){
+			Global.jsCall("shareViaGithub", getTitle(), ta.getText());
 		}
 		else if ("Compile and Run".equals(what))
 				compileAndRun();
