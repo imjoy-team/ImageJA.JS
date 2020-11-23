@@ -870,7 +870,7 @@ public class ImageReader {
 		InputStream is;
 		try {theURL = new URL(url);}
 		catch (MalformedURLException e) {IJ.log(""+e); return null;}
-		try {is = Opener.openUrlAsInputStream(theURL);}
+		try {is = theURL.openStream();}
 		catch (IOException e) {IJ.log(""+e); return null;}
 		return readPixels(is);
 	}

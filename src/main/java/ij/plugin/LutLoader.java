@@ -348,8 +348,7 @@ public class LutLoader extends ImagePlus implements PlugIn {
 	int openBinaryLut(FileInfo fi, boolean isURL, boolean raw) throws IOException {
 		InputStream is;
 		if (isURL){
-			Opener o = new Opener();
-			is = o.openUrlAsInputStream(new URL(fi.url+fi.fileName));
+			is = new URL(fi.url+fi.fileName).openStream();
 		}
 		else
 			is = new FileInputStream(fi.getFilePath());

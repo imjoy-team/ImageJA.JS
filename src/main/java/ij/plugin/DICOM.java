@@ -519,8 +519,7 @@ class DicomDecoder {
 		fi.fileName = fileName;
 		if (directory.indexOf("://")>0) { // is URL
 			URL u = new URL(directory+fileName);
-			Opener o = new Opener();
-			inputStream = new BufferedInputStream(o.openUrlAsInputStream(u));
+			inputStream = new BufferedInputStream(u.openStream());
 			fi.inputStream = inputStream;
 		} else if (inputStream!=null)
 			fi.inputStream = inputStream;

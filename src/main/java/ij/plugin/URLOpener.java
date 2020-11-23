@@ -117,7 +117,7 @@ public class URLOpener implements PlugIn {
 		StringBuffer sb = null;
 		try {
 			URL url = new URL(urlString);
-			InputStream in = Opener.openUrlAsInputStream(url);
+			InputStream in = url.openStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			sb = new StringBuffer() ;
 			String line;

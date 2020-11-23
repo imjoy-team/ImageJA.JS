@@ -201,10 +201,12 @@ public class PluginInstaller implements PlugIn {
 			if (IJ.debugMode) IJ.log("PluginInstaller: "+urlString+"  " +url);
 			if (url==null)
 				return null;
+			URLConnection uc = url.openConnection();
+			int len = uc.getContentLength();
+			unknownLength = len<0;
 			if (name!=null)
 				IJ.showStatus("Downloading "+url.getFile());
-			InputStream in = Opener.openUrlAsInputStream(url);
-			int len = in.available();
+			InputStream in = uc.getInputStream();
 			data = new byte[len];
 			int lenk = len/1024;
 			while (n<len) {

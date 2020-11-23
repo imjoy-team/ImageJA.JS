@@ -104,7 +104,7 @@ public class ImageJ_Updater implements PlugIn {
 		StringBuffer sb;
 		try {
 			URL url = new URL(address);
-			InputStream in = Opener.openUrlAsInputStream(url);
+			InputStream in = url.openStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			sb = new StringBuffer();
 			int count = 0;
@@ -123,7 +123,7 @@ public class ImageJ_Updater implements PlugIn {
 			IJ.showStatus("Connecting to "+IJ.URL);
 			String name = address.contains("daily")?"daily build (":"ij.jar (";
 			IJ.showStatus("Downloading "+ name);
-			InputStream in = Opener.openUrlAsInputStream(url);
+			InputStream in = url.openStream();
 			int len = in.available();
 			data = new byte[len];
 			int n = 0;
@@ -157,7 +157,7 @@ public class ImageJ_Updater implements PlugIn {
 		Vector v = new Vector();
 		try {
 			URL url = new URL(address);
-			InputStream in = Opener.openUrlAsInputStream(url);
+			InputStream in = url.openStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line;
 			while (true) {

@@ -21,7 +21,6 @@ import javax.swing.filechooser.*;
 import java.awt.event.KeyEvent;
 import javax.imageio.ImageIO;
 import java.lang.reflect.Method;
-import com.leaningtech.client.Global;
 
 /** Opens tiff (and tiff stacks), dicom, fits, pgm, jpeg, bmp or
 	gif images, and look-up tables, using a file open dialog or a path.
@@ -47,13 +46,6 @@ public class Opener {
 	static {
 		Hashtable commands = Menus.getCommands();
 		bioformats = commands!=null && commands.get("Bio-Formats Importer")!=null;
-	}
-
-	private static byte[] bytesFromUrl = null;
-	private static boolean urlDone = false;
-	public interface Promise{
-		void resolve(byte[] result);
-		void reject(String error);
 	}
 
 	public Opener() {
@@ -89,31 +81,7 @@ public class Opener {
 	 * @see ij.IJ#open(String)
 	 * @see ij.IJ#openImage(String)
 	*/
-	public void open(final String path) {
-		if(!path.startsWith("http") || EventQueue.isDispatchThread()){
-			openPath(path);
-		}
-		else{
-			// for http url, we need to run it in another thread
-			// in order to call JS function (getBytesFromUrl)
-			try {
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						openPath(path);
-						try{
-							Global.jsCall("onOpenResolve");
-						}
-						finally{
-						}
-					}
-				});
-			} catch (Exception e) {
-				System.out.println(e.toString());
-			}
-		}
-	}
-
-	private void openPath(String path) {
+	public void open(String path) {
 		boolean isURL = path.indexOf("://")>0;
 		if (isURL && isText(path)) {
 			openTextURL(path);
@@ -459,7 +427,7 @@ public class Opener {
 			String lurl = url.toLowerCase(Locale.US);
 			if (lurl.endsWith(".tif")) {
 				this.url = url;
-				imp = openTiff(openUrlAsInputStream(u), name);
+				imp = openTiff(u.openStream(), name);
 			} else if (lurl.endsWith(".zip"))
 				imp = openZipUsingUrl(u);
 			else if (lurl.endsWith(".jpg") || lurl.endsWith(".gif"))
@@ -470,7 +438,14 @@ public class Opener {
 			} else if (lurl.endsWith(".png"))
 				imp = openPngUsingURL(name, u);
 			else {
-				imp = openWithHandleExtraFileTypes(url, new int[]{0});
+				URLConnection uc = u.openConnection();
+				String type = uc.getContentType();
+				if (type!=null && (type.equals("image/jpeg")||type.equals("image/gif")))
+					imp = openJpegOrGifUsingURL(name, u);
+				else if (type!=null && type.equals("image/png"))
+					imp = openPngUsingURL(name, u);
+				else
+					imp = openWithHandleExtraFileTypes(url, new int[]{0});
 			}
 			IJ.showStatus("");
 			return imp;
@@ -565,74 +540,10 @@ public class Opener {
 		}
 	}
 
-	private static byte[] getBytesFromUrl(String url) throws IOException{
-		bytesFromUrl = null;
-		urlDone = false;
-		IJ.showStatus("Fetching data from "+url);
-		if(EventQueue.isDispatchThread()){
-            Global.jsCall("getBytesFromUrl", url, new Promise(){
-                public void resolve(byte[] result){
-                    bytesFromUrl = result;
-                    urlDone = true;
-                }
-                public void reject(String error){
-                    urlDone = true;
-                }
-            });
-            while(!urlDone){
-                try {
-					Thread.sleep(500);
-                } catch (Exception e) {
-					System.out.println(e.toString());
-                    break;
-                }
-            }
-        }
-        else{
-            Global.jsCall("getBytesFromUrl", url, new Promise(){
-                public void resolve(byte[] result){
-                    bytesFromUrl = result;
-                    urlDone = true;
-                }
-                public void reject(String error){
-                    urlDone = true;
-                }
-            });
-            try {
-                // block execution until we get the file path from js
-                EventQueue.invokeAndWait(new Runnable() {
-                    public void run() {
-                        while(!urlDone){
-                            try {
-								Thread.sleep(500);
-                            } catch (Exception e) {
-								System.out.println(e.toString());
-                                break;
-                            }
-                        }
-                    }
-                });
-            } catch (Exception e) {
-				System.out.println(e.toString());
-			}
-		}
-		if(bytesFromUrl == null) {
-			IJ.showStatus("Failed to fetch data from "+url);
-			throw new IOException();
-		}
-		else{
-			IJ.showStatus("Data downloaded from "+url);
-		}
-		return bytesFromUrl;
-	}
-
-	public static InputStream openUrlAsInputStream(URL url) throws IOException{
-		return new ByteArrayInputStream(getBytesFromUrl(url.toString()));
-	}
-
 	/** Opens the ZIP compressed TIFF or DICOM at the specified URL. */
 	ImagePlus openZipUsingUrl(URL url) throws IOException {
-		InputStream in = openUrlAsInputStream(url);
+		URLConnection uc = url.openConnection();
+		InputStream in = uc.getInputStream();
 		ZipInputStream zis = new ZipInputStream(in);
 		ZipEntry entry = zis.getNextEntry();
 		if (entry==null) {
@@ -699,7 +610,13 @@ public class Opener {
 	}
 
 	ImagePlus openJpegOrGifUsingURL(String title, URL url) {
-		return openPngUsingURL(title, url);
+		if (url==null) return null;
+		Image img = Toolkit.getDefaultToolkit().createImage(url);
+		if (img!=null) {
+			ImagePlus imp = new ImagePlus(title, img);
+			return imp;
+		} else
+			return null;
 	}
 
 	ImagePlus openPngUsingURL(String title, URL url) {
@@ -707,7 +624,7 @@ public class Opener {
 			return null;
 		Image img = null;
 		try {
-			InputStream in = openUrlAsInputStream(url);
+			InputStream in = url.openStream();
 			img = ImageIO.read(in);
 		} catch (FileNotFoundException e) {
 			IJ.error("Open PNG Using URL", ""+e);
@@ -1005,7 +922,7 @@ public class Opener {
 				info[0].inputStream.close();
 			} catch (IOException e) {}
 			try {
-				info[0].inputStream = openUrlAsInputStream(new URL(url));
+				info[0].inputStream = new URL(url).openStream();
 			} catch (Exception e) {
 				IJ.error("Open TIFF", ""+e);
 				return null;
@@ -1390,7 +1307,7 @@ public class Opener {
 		if (fi.inputStream!=null)
 			return fi.inputStream;
 		else if (fi.url!=null && !fi.url.equals(""))
-			return openUrlAsInputStream(new URL(fi.url+fi.fileName));
+			return new URL(fi.url+fi.fileName).openStream();
 		else {
 			File f = new File(fi.getFilePath());
 			if (f==null || f.isDirectory())

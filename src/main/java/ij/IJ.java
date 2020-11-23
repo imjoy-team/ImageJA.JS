@@ -1976,7 +1976,11 @@ public class IJ {
 		try {
 			//if (url.contains("nih.gov")) addRootCA();
 			URL u = new URL(url);
-			InputStream in = Opener.openUrlAsInputStream(u);
+			URLConnection uc = u.openConnection();
+			long len = uc.getContentLength();
+			if (len>5242880L)
+				return "<Error: file is larger than 5MB>";
+			InputStream in = u.openStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			sb = new StringBuffer() ;
 			String line;
