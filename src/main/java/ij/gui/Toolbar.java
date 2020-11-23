@@ -1176,7 +1176,13 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (!isValidTool(newTool))
 			return;
 		if (menus[newTool]!=null && menus[newTool].getItemCount()>0) {
-            menus[newTool].show(e.getComponent(), e.getX(), e.getY());
+			// for ImageJ.JS, prevent popup menu goes offscreen
+			Dimension screen = IJ.getScreenSize();
+			int ex = e.getX();
+			if(ex+152>screen.width){
+				ex = screen.width - 152; 
+			}
+            menus[newTool].show(e.getComponent(), ex, e.getY());
 			return;
 		}
 		int flags = e.getModifiers();
