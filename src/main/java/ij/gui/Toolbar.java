@@ -1115,6 +1115,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			setTool2(newTool);
 		int x = e.getX();
 		int y = e.getY();
+		// for ImageJ.JS, prevent popup menu goes offscreen
+		Dimension screen = IJ.getScreenSize();
+		if(x+152>screen.width){
+			x = screen.width - 152; 
+		}
 		if (current==RECTANGLE && isRightClick) {	
 			rectItem.setState(rectType==RECT_ROI);	
 			roundRectItem.setState(rectType==ROUNDED_RECT_ROI);	
@@ -1311,7 +1316,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addItem("Help...");
 		add(ovalPopup);
 		if (IJ.isMacOSX()) IJ.wait(10);
-		switchPopup.show(e.getComponent(), e.getX(), e.getY());
+		int ex = e.getX();
+		Dimension screen = IJ.getScreenSize();
+		if(ex+152>screen.width){
+			ex = screen.width - 152; 
+		}
+		switchPopup.show(e.getComponent(), ex, e.getY());
 	}
 
 	private void addPluginTools() {
