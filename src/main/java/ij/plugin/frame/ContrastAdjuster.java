@@ -249,7 +249,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		//thread.setPriority(thread.getPriority()-1);
 		thread.start();
 		setup();
-		setSize(164, 354);
+		setSize(160, 340);
 	}
 
 	void addBalanceChoices() {
