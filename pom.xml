@@ -85,7 +85,7 @@
 		<license.copyrightOwners>N/A</license.copyrightOwners>
 
 		<scijava.jvm.version>1.8</scijava.jvm.version>
-		<scijava.jvm.build.version>[8,)</scijava.jvm.build.version>
+		<scijava.jvm.build.version>1.8</scijava.jvm.build.version>
 		<javac.path>${java.home}/../lib/tools.jar</javac.path>
 
 		<!-- HACK: Work around usage of Java-7-specific JList code. -->
