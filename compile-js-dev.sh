@@ -3,7 +3,7 @@
 
 set -e
 
-IJ_JAR="ij-1.53g.jar"
+IJ_JAR="ij-1.53h.jar"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 mvn clean

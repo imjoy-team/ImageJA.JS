@@ -71,11 +71,7 @@ public class BrowserLauncher implements PlugIn {
 	 *    call("ij.plugin.BrowserLauncher.open",url);
 	 */
 	public static String open(String url) {
-		try {
-			openURL(url);
-		} catch (IOException e) {
-			return e.getMessage();
-		}
+		openURL(url);
 		return "";
 	}
 
