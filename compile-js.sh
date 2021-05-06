@@ -74,6 +74,16 @@ mv plugins.config plugins/Thunder_STORM.jar.config
 rm plugins/Thunder_STORM.jar
 mv plugins/Thunder_STORM-packed.jar plugins/Thunder_STORM.jar
 
+# download and compile deepimagej.js
+curl https://github.com/deepimagej/deepimagej.js/releases/download/v2.0.1/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar -LO
+mv DeepImageJ_JS_-2.0.1-SNAPSHOT.jar plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar
+${CHEERPJ_DIR}/cheerpjfy.py  -j 4 --deps=${IJ_JAR} --pack-jar=plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT-packed.jar plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar
+# extract plugins.config
+jar xf plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar plugins.config
+mv plugins.config plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar.config
+rm plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar
+mv plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT-packed.jar plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar
+
 rm ImageJ.exe
 rm run
 rm -rf ImageJ.app

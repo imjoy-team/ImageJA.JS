@@ -34,4 +34,12 @@ ${CHEERPJ_DIR}/cheerpjfy.py  -j 4 --deps=${IJ_JAR} plugins/Thunder_STORM.jar
 jar xf plugins/Thunder_STORM.jar plugins.config
 mv plugins.config plugins/Thunder_STORM.jar.config
 
+# download and compile deepimagej.js
+curl https://github.com/deepimagej/deepimagej.js/releases/download/v2.0.1/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar -LO
+mv DeepImageJ_JS_-2.0.1-SNAPSHOT.jar plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar
+${CHEERPJ_DIR}/cheerpjfy.py  -j 4 --deps=${IJ_JAR} plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar
+# extract plugins.config
+jar xf plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar plugins.config
+mv plugins.config plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar.config
+
 # python ${DIR}/build-plugins.py
