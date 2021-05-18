@@ -20,7 +20,6 @@ public class JSVirtualStack extends VirtualStack implements ImageListener {
 	private static Object jsLock;
 	private FileInfo fi;
 	private byte[] bytes = null;
-	private ImagePlus imp = null;
 	public interface Promise{
 		void resolve(byte[] result);
 		void reject(String error);
