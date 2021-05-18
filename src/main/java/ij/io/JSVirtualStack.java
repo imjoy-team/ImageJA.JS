@@ -8,21 +8,36 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import ij.plugin.Macro_Runner;
 import com.leaningtech.client.Global;
 
 
 /** This plugin opens images loaded dynamically through Javascript */
-public class JSVirtualStack extends VirtualStack {
+public class JSVirtualStack extends VirtualStack implements ImageListener {
 	private int nImages;
 	private int imageWidth, imageHeight;
 	private String fileKey;
 	private static Object jsLock;
 	private FileInfo fi;
 	private byte[] bytes = null;
-
+	private ImagePlus imp = null;
 	public interface Promise{
 		void resolve(byte[] result);
 		void reject(String error);
+	}
+
+	public void imageOpened(ImagePlus imp){
+		
+	}
+
+	public void imageClosed(ImagePlus imp){
+		if(imp.getStack() == this){
+			Global.jsCall("onJSVirtualStackClosed", this.fileKey);
+		}
+	}
+
+	public void imageUpdated(ImagePlus imp){
+
 	}
 
 	public JSVirtualStack(String fileKey, int imageWidth, int imageHeight, int nImages, int type, String title) {
@@ -58,19 +73,11 @@ public class JSVirtualStack extends VirtualStack {
 			default:
     	}
 		this.fi = fi;
-	}
 
-	ImageStack convertToRealStack(ImagePlus imp) {
-		ImageStack stack2 = new ImageStack(imageWidth, imageHeight, imp.getProcessor().getColorModel());
-		int n = this.getSize();
-		for (int i=1; i<=this.getSize(); i++) {
-			IJ.showProgress(i, n);
-			IJ.showStatus("Opening: "+i+"/"+n);
-			ImageProcessor ip2 = this.getProcessor(i);
-			if (ip2!=null)
-				stack2.addSlice(this.getSliceLabel(i), ip2);
-		}
-		return stack2;
+		ImagePlus imp = new ImagePlus(title, this);
+		imp.show();
+		Global.jsCall("onJSVirtualStackReady", fileKey, imp);
+		ImagePlus.addImageListener(this);
 	}
 
 	public ColorModel createColorModel(FileInfo fi) {

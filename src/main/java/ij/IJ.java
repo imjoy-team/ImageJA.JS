@@ -2271,9 +2271,7 @@ public class IJ {
 	public static void createJSVirtualStack(final String fileKey, final int imageWidth, final int imageHeight, final int nImages, final int type, final String title){
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
-				JSVirtualStack jsv = new JSVirtualStack( fileKey, imageWidth, imageHeight, nImages, type, title);
-				ImagePlus imp = new ImagePlus(title, jsv);
-				Global.jsCall("onJSVirtualStackReady", fileKey, imp);
+				new JSVirtualStack( fileKey, imageWidth, imageHeight, nImages, type, title);
 			}
 		}, "JSVirtualStackOpener");
 		thread.start();
