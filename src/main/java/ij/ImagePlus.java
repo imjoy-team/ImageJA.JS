@@ -102,6 +102,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	public boolean setIJMenuBar = Prefs.setIJMenuBar;
 	private Plot plot;
 	private Properties imageProperties;
+	private Color borderColor;
 
 
     /** Constructs an uninitialized ImagePlus. */
@@ -297,6 +298,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		nothing if there is no window associated with
 		this image (i.e. show() has not been called).*/
 	public synchronized void updateAndDraw() {
+		if (win==null) {
+			img = null;
+			return;
+		}
 		if (stack!=null && !stack.isVirtual() && currentSlice>=1 && currentSlice<=stack.size()) {		
 			if (stack.size()>1 && win!=null && !(win instanceof StackWindow)) {
 				setStack(stack);	//adds scroll bar if stack size has changed to >1
@@ -421,6 +426,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** ImageCanvas.paint() calls this method when the
 		ImageProcessor has generated a new image. */
 	public void updateImage() {
+		if (win==null) {
+			img = null;
+			return;
+		}
 		if (ip!=null)
 			img = ip.createImage();
 	}
@@ -428,6 +437,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Closes the window, if any, that is displaying this image. */
 	public void hide() {
 		if (win==null) {
+			img = null;
 			Interpreter.removeBatchModeImage(this);
 			return;
 		}
@@ -532,6 +542,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Called by ImageWindow.windowActivated(). */
 	public void setActivated() {
 		activated = true;
+		if (borderColor!=null && win!=null)
+			win.setBackground(borderColor);
 	}
 
 	/** Returns this image as a AWT image. */
@@ -540,7 +552,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			img = ip.createImage();
 		return img;
 	}
-
+	
 	/** Returns a copy of this image as an 8-bit or RGB BufferedImage.
 	 * @see ij.process.ShortProcessor#get16BitBufferedImage
 	 */
@@ -722,7 +734,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		int previousStackSize = getStackSize();
 		int newStackSize = newStack.getSize();
 		if (newStackSize==0)
-			throw new IllegalArgumentException("Stack is empty");
+			throw new IllegalArgumentException("Stack is empty");		
 		if (!newStack.isVirtual()) {
 			Object[] arrays = newStack.getImageArray();
 			if (arrays==null || (arrays.length>0&&arrays[0]==null))
@@ -2074,23 +2086,20 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Deletes the current region of interest. Makes a copy of the ROI
 		so it can be recovered by Edit/Selection/Restore Selection. */
 	public void deleteRoi() {
-		if (roi!=null) {
-			saveRoi();
-			if (!(IJ.altKeyDown()||IJ.shiftKeyDown())) {
-				RoiManager rm = RoiManager.getRawInstance();
-				if (rm!=null)
-					rm.deselect(roi);
-			}
-			if (roi!=null) {
-				roi.notifyListeners(RoiListener.DELETED);
-				if (roi instanceof PointRoi)
-					((PointRoi)roi).resetCounters();
-			}
-			roi = null;
-			if (ip!=null)
-				ip.resetRoi();
-			draw();
+		if (roi==null)
+			return;
+		saveRoi();
+		if (!(IJ.altKeyDown()||IJ.shiftKeyDown())) {
+			RoiManager rm = RoiManager.getRawInstance();
+			if (rm!=null)
+				rm.deselect(roi);
 		}
+		if (roi!=null)
+			roi.notifyListeners(RoiListener.DELETED);
+		roi = null;
+		if (ip!=null)
+			ip.resetRoi();
+		draw();
 	}
 
 	public boolean okToDeleteRoi() {
@@ -2112,6 +2121,11 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
 	/** Deletes the current region of interest. */
 	public void killRoi() {
+		deleteRoi();
+	}
+	
+	/** Deletes the current region of interest. */
+	public void resetRoi() {
 		deleteRoi();
 	}
 
@@ -2435,9 +2449,11 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			return (new Duplicator()).run(this);
 		else if (options.contains("whole")) {
 			Roi saveRoi = getRoi();
-			deleteRoi();
+			if (saveRoi!=null)
+				this.roi = null;
 			ImagePlus imp2 = crop();
-			setRoi(saveRoi);
+			if (saveRoi!=null)
+				this.roi = saveRoi;
 			return imp2;
 		} else if (options.contains("slice") || stackSize==1)
 			return crop();
@@ -3034,8 +3050,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     }
 
 	public void updatePosition(int c, int z, int t) {
-		//IJ.log("updatePosition: "+c+", "+z+", "+t);
-		position[0] = c;
+ 		position[0] = c;
 		position[1] = z;
 		position[2] = t;
 	}
@@ -3045,7 +3060,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		if (IJ.debugMode) IJ.log("flatten");
 		ImagePlus impCopy = this;
 		if (getStackSize()>1)
-			impCopy = crop("whole-slice");
+			impCopy = crop("whole-slice");			
 		ImagePlus imp2 = impCopy.createImagePlus();
 		imp2.setOverlay(impCopy.getOverlay());
 		imp2.setTitle(flattenTitle);
@@ -3053,7 +3068,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		imp2.flatteningCanvas = ic2;
 		imp2.setRoi(getRoi());
 		Overlay overlay2 = getOverlay();
-		if (overlay2!=null && imp2.getRoi()!=null) {
+		if (overlay2!=null && imp2.getRoi()!=null && !(imp2.getRoi() instanceof PointRoi)) {
 			imp2.deleteRoi();
 			if (getWindow()!=null) IJ.wait(100);
 		}
@@ -3104,7 +3119,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		Overlay overlay2 = overlay1!=null?overlay1:roiManagerOverlay;
 		if (composite && overlay2==null)
 				return;
-		if (overlay2==null||overlay2.size()==0)
+		if (overlay2==null || overlay2.size()==0)
 			throw new UnsupportedOperationException("A non-empty overlay is required");
 		ImageStack stack2 = getStack();
 		boolean showAll = overlay1!=null?false:roiManagerShowAllMode;
@@ -3338,4 +3353,12 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		return ip!=null && ip.getNChannels()==3;
     }
     
+    public void setBorderColor(Color borderColor) {
+    	this.borderColor = borderColor;
+    }
+    
+    public boolean windowActivated() {
+    	return this.activated;
+    }
+        
 }

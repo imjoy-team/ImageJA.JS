@@ -801,9 +801,9 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			ImageStatistics stats = imp.getStatistics();
 			if (imageType!=BYTE || (stats.histogram[0]+stats.histogram[255]!=stats.pixelCount)) {
 				IJ.error("Particle Analyzer",
-					"A thresholded image or 8-bit binary image is\n"
-					+"required. Threshold levels can be set using\n"
-					+"the Image->Adjust->Threshold tool.");
+					"A threshold has not been set using the\n"
+					+"Image->Adjust->Threshold tool or the \n"
+					+"setThreshold(min,max) macro function.");
 				canceled = true;
 				return false;
 			}
@@ -819,6 +819,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				level2 = 0;
 				fillColor = 192;
 			}
+			if (!IJ.isMacro())
+				IJ.log("ParticleAnalyzer: threshold not set; assumed to be "+(int)level1+"-"+(int)level2);
 		} else {
 			level1 = t1;
 			level2 = t2;
@@ -1031,16 +1033,19 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			overlay.add(roi2);
 		} else {
 			Rectangle r = roi.getBounds();
-			int nPoints = ((PolygonRoi)roi).getNCoordinates();
-			int[] xp = ((PolygonRoi)roi).getXCoordinates();
-			int[] yp = ((PolygonRoi)roi).getYCoordinates();
-			int x=r.x, y=r.y;
 			if (!inSituShow)
 				ip.setValue(0.0);
-			ip.moveTo(x+xp[0], y+yp[0]);
-			for (int i=1; i<nPoints; i++)
-				ip.lineTo(x+xp[i], y+yp[i]);
-			ip.lineTo(x+xp[0], y+yp[0]);
+			if (roi instanceof PolygonRoi) {
+				int nPoints = ((PolygonRoi)roi).getNCoordinates();
+				int[] xp = ((PolygonRoi)roi).getXCoordinates();
+				int[] yp = ((PolygonRoi)roi).getYCoordinates();
+				int x=r.x, y=r.y;
+				ip.moveTo(x+xp[0], y+yp[0]);
+				for (int i=1; i<nPoints; i++)
+					ip.lineTo(x+xp[i], y+yp[i]);
+				ip.lineTo(x+xp[0], y+yp[0]);
+			} else
+				roi.drawPixels(ip);
 			if (showChoice!=BARE_OUTLINES) {
 				String s = ResultsTable.d2s(count,0);
 				ip.moveTo(r.x+r.width/2-ip.getStringWidth(s)/2, r.y+r.height/2+fontSize/2);

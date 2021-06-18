@@ -669,6 +669,36 @@ public class Opener {
 		else{
 			IJ.error("Error", "Failed to load image");
 		}
+		if (imp != null) {  // correct iPhone photo orientation (Norbert Vischer)
+			String exifText = new ImageInfo().getExifData(imp);
+			if (exifText != null) {
+				String[] lines = exifText.split("\n");
+				for (int jj = 0; jj < lines.length; jj++) {
+					int orientationIndex = lines[jj].indexOf("Orientation:");
+					int rotateIndex = lines[jj].indexOf("Rotate");
+					if (orientationIndex >= 0 && rotateIndex >= 0) {
+						String rest = lines[jj].substring(rotateIndex);
+						rest = rest.replace(")", " ");
+						String[] parts = rest.split(" ");
+						if (parts.length >= 2) {
+							ImageProcessor ip = imp.getProcessor();
+							double angle = Double.parseDouble(parts[1]);
+							ImageProcessor ip2 = null;
+							if (angle == 90)
+								ip2 = ip.rotateRight();
+							else if (angle == 180) {
+								ip2 = ip.rotateRight();
+								ip2 = ip2.rotateRight();
+							} else if (angle == 270)
+								ip2 = ip.rotateLeft();
+							if (ip2!=null)
+								imp.setProcessor(ip2);
+							break;
+						}
+					}
+				}
+			}
+		}
 		return imp;
 	}
 	
