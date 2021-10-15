@@ -274,10 +274,12 @@ public class IJ {
  			else
 				new PlugInFilterRunner(thePlugIn, commandName, arg);
 		} catch (ClassNotFoundException e) {
-			log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
-			String path = Prefs.getCustomPropsPath();
-			if (path!=null);
-				log("Error may be due to custom properties at " + path);
+			if (!(className!=null && className.startsWith("ij.plugin.MacAdapter"))) {
+				log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
+				String path = Prefs.getCustomPropsPath();
+				if (path!=null);
+					log("Error may be due to custom properties at " + path);
+			}
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {log("Unable to load plugin, possibly \nbecause it is not public.");}
@@ -447,8 +449,8 @@ public class IJ {
 			commandTable.put("Line Graph (21K)", "Line Graph");			
 			commandTable.put("Mitosis (26MB, 5D stack)", "Mitosis (5D stack)");
 			commandTable.put("MRI Stack (528K)", "MRI Stack");
-			commandTable.put("M51 Galaxy (177K, 16-bits)", "M51 Galaxy (16-bits))");
-			commandTable.put("Neuron (1.6M, 5 channels", "Neuron (5 channels");
+			commandTable.put("M51 Galaxy (177K, 16-bits)", "M51 Galaxy (16-bits)");
+			commandTable.put("Neuron (1.6M, 5 channels)", "Neuron (5 channels)");
 			commandTable.put("Nile Bend (1.9M)", "Nile Bend");			
 			commandTable.put("Organ of Corti (2.8M, 4D stack)", "Organ of Corti (4D stack)");
 			commandTable.put("Particles (75K)", "Particles");

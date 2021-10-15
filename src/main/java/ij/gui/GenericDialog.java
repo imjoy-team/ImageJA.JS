@@ -79,7 +79,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	private String helpURL;
 	private boolean smartRecording;
 	private Vector imagePanels;
-	private static GenericDialog instance;
+	protected static GenericDialog instance;
 	private boolean firstPaint = true;
 	private boolean fontSizeSet;
 	private boolean showDialogCalled;
@@ -370,6 +370,26 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		add(panel);
 		if (Recorder.record || macro)
 			saveLabel(panel, label);
+	}
+
+	/**
+	 * Add button to the dialog
+	 * @param label button label
+	 * @param listener listener to handle the action when pressing the button
+	*/
+	public void addButton(String label, ActionListener listener) {
+		if (GraphicsEnvironment.isHeadless())
+			return;
+		Button button = new Button(label);
+		button.addActionListener(listener);
+		button.addKeyListener(this);		
+		GridBagLayout layout = (GridBagLayout)getLayout();
+		Panel panel = new Panel();
+		addPanel(panel);
+		GridBagConstraints constraints = layout.getConstraints(panel);
+		remove(panel);
+		layout.setConstraints(button, constraints);
+		add(button);
 	}
 
 	/** Adds a popup menu that lists the currently open images.
@@ -735,11 +755,11 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		if (textArea1!=null) return;
 		Panel panel = new Panel();
 		int scrollbars = TextArea.SCROLLBARS_NONE;
-		if (text1.endsWith("SCROLLBARS_BOTH")) {
+		if (text1!=null && text1.endsWith("SCROLLBARS_BOTH")) {
 			scrollbars = TextArea.SCROLLBARS_BOTH;
 			text1 = text1.substring(0, text1.length()-15);
 		}
-		if (text1.endsWith("SCROLLBARS_VERTICAL_ONLY")) {
+		if (text1!=null && text1.endsWith("SCROLLBARS_VERTICAL_ONLY")) {
 			scrollbars = TextArea.SCROLLBARS_VERTICAL_ONLY;
 			text1 = text1.substring(0, text1.length()-24);
 		}
@@ -1357,6 +1377,10 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			String cmd = Recorder.getCommand();
 			if (cmd!=null && cmd.equals("Calibrate..."))
 				text2 = text2.replace('\n',' ');
+			if (cmd!=null && cmd.equals("Convolve...")){
+				if (!text2.endsWith("\n"))
+					text2 += "\n";
+			}
 			text2 = Recorder.fixString(text2);
 			Recorder.recordOption(key, text2);
 		}
@@ -1411,8 +1435,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			c.gridwidth = addToSameRowCalled?GridBagConstraints.REMAINDER:2;
 			c.insets = new Insets(15, 0, 0, 0);
 			add(buttons, c);
-			if (IJ.isMacOSX()&&IJ.isJava18())
-				instance = this;
+			instance = this;
 			Font font = getFont();
 			if (!fontSizeSet && font!=null && Prefs.getGuiScale()!=1.0) {
 				fontSizeSet = true;

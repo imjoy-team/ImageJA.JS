@@ -105,6 +105,8 @@ public class SaveDialog {
 	void jSaveDispatchThread(String title, String defaultDir, String defaultName) {
 		JSFileChooser fc = new JSFileChooser();
 		fc.setDialogTitle(title);
+		fc.setDragEnabled(true);
+		fc.setTransferHandler(new DragAndDropHandler(fc));
 		if (defaultDir!=null) {
 			File f = new File(defaultDir);
 			if (f!=null)
@@ -148,6 +150,8 @@ public class SaveDialog {
 				public void run() {
 					JSFileChooser fc = new JSFileChooser();
 					fc.setDialogTitle(title);
+					fc.setDragEnabled(true);
+					fc.setTransferHandler(new DragAndDropHandler(fc));
 					if (defaultDir!=null) {
 						File f = new File(defaultDir);
 						if (f!=null)

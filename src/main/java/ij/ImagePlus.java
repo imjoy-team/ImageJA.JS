@@ -103,6 +103,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private Plot plot;
 	private Properties imageProperties;
 	private Color borderColor;
+	private boolean temporary;
 
 
     /** Constructs an uninitialized ImagePlus. */
@@ -163,6 +164,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
     private void setID() {
     	ID = --currentID;
+	}
+	
+	public void setTemporary() {
+		if (!temporary) {
+			temporary = true;		
+			currentID++;
+			ID = -Integer.MAX_VALUE;
+		}
 	}
 
 	/** Locks the image so other threads can test to see if it is in use.
@@ -472,7 +481,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Opens a window to display this image and displays
 		'statusMessage' in the status bar. */
 	public void show(String statusMessage) {
-		if (isVisible())
+		if (isVisible() || temporary)
 			return;
 		win = null;
 		if ((IJ.isMacro() && ij==null) || Interpreter.isBatchMode()) {
@@ -820,7 +829,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private synchronized void setStackNull() {
 		if (oneSliceStack && stack!=null && stack.size()>0) {
 			String label = stack.getSliceLabel(1);
-			setProperty("Label", label);
+			setProp("Slice_Label", label);
 		}
 		stack = null;
 		oneSliceStack = false;
@@ -1681,7 +1690,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			ImageProcessor ip2 = getProcessor();
 			if (ip2==null)
 				return s;
-			String label = (String)getProperty("Label");
+			String label = getProp("Slice_Label");
 			if (label==null) {
 				String info = (String)getProperty("Info");
 				label = info!=null?getTitle()+"\n"+info:null; // DICOM metadata
@@ -2074,7 +2083,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 					}
 				}
 				if (Prefs.pointAutoNextSlice && getStackSize()>1) {
+					boolean order = Prefs.reverseNextPreviousOrder;
+					Prefs.reverseNextPreviousOrder = true;
 					IJ.run(this, "Next Slice [>]", "");
+					Prefs.reverseNextPreviousOrder = order;
 					deleteRoi();
 				}
 				break;
@@ -2838,7 +2850,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			cr = cRoi.getBounds();
 		if (cr==null)
 			cr = new Rectangle(0, 0, w, h);
-		if (r==null || Math.abs(cr.width-r.width)>10 || Math.abs(cr.height-r.height)>10) {
+		if (r==null || (cr.width!=r.width || cr.height!=r.height)) {
 			// Create a new roi centered on visible part of image, or centered on image if clipboard is >= image
 			ImageCanvas ic = win!=null?ic = win.getCanvas():null;
 			Rectangle srcRect = ic!=null?ic.getSrcRect():new Rectangle(0,0,width,height);
@@ -2926,6 +2938,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 
 	protected void notifyListeners(final int id) {
+		if (temporary)
+			return;
 	    final ImagePlus imp = this;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
