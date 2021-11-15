@@ -43,13 +43,13 @@ jar xf plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar plugins.config
 mv plugins.config plugins/DeepImageJ_JS_-2.0.1-SNAPSHOT.jar.config
 
 # compile action bar
-curl https://raw.githubusercontent.com/mutterer/ActionBar/master/dist/action_bar20150915.jar -LO
-mv action_bar20150915.jar plugins/action_bar20150915.jar
-${CHEERPJ_DIR}/cheerpjfy.py  -j 4 --deps=${IJ_JAR} --pack-jar=plugins/action_bar20150915-packed.jar plugins/action_bar20150915.jar
+curl https://sites.imagej.net/Mutterer/plugins/action_bar.jar-20210614214121 -LO
+mv action_bar.jar-20210614214121 plugins/action_bar20210614214121.jar
+${CHEERPJ_DIR}/cheerpjfy.py  -j 4 --deps=${IJ_JAR} --pack-jar=plugins/action_bar20210614214121-packed.jar plugins/action_bar20210614214121.jar
 # extract plugins.config
-jar xf plugins/action_bar20150915.jar plugins.config
-mv plugins.config plugins/action_bar20150915.jar.config
-rm plugins/action_bar20150915.jar
-mv plugins/action_bar20150915-packed.jar plugins/action_bar20150915.jar
+jar xf plugins/action_bar20210614214121.jar plugins.config
+mv plugins.config plugins/action_bar20210614214121.jar.config
+rm plugins/action_bar20210614214121.jar
+mv plugins/action_bar20210614214121-packed.jar plugins/action_bar20210614214121.jar
 
 # python ${DIR}/build-plugins.py
