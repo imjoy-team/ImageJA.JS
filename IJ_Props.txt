@@ -25,8 +25,8 @@ popup11=Capture Screen
 new01="Image...[n]",ij.plugin.Commands("new")
 new02="Hyperstack...",ij.plugin.HyperStackMaker
 new03="Text Window[N]",ij.plugin.NewPlugin("text")
-new04="Internal Clipboard",ij.plugin.Clipboard("show")
-new05="System Clipboard[V]",ij.plugin.Clipboard("showsys")
+new04="ImJoy Plugin",ij.plugin.NewPlugin("imjoy-plugin:https://raw.githubusercontent.com/imjoy-team/ImJoy/master/web/src/plugins/webWorkerTemplate.imjoy.html")
+new05="Internal Clipboard",ij.plugin.Clipboard("show")
 
 # Plugins installed in the File/Import submenu
 import01="Image Sequence...",ij.plugin.FolderOpener
@@ -415,12 +415,13 @@ new_01="Macro",ij.plugin.NewPlugin("macro")
 new_02="Macro Tool",ij.plugin.NewPlugin("macro-tool")
 new_03="JavaScript",ij.plugin.NewPlugin("javascript")
 new_04=-
-new_05="Plugin",ij.plugin.NewPlugin("plugin")
-new_06="Plugin Filter",ij.plugin.NewPlugin("filter")
-new_07="Plugin Frame",ij.plugin.NewPlugin("frame")
-new_08="Plugin Tool",ij.plugin.NewPlugin("plugin-tool")
-new_09=-
-new_10="Text Window...",ij.plugin.NewPlugin("text+dialog")
+new_05="ImJoy (default)",ij.plugin.NewPlugin("imjoy-plugin:https://raw.githubusercontent.com/imjoy-team/ImJoy/master/web/src/plugins/webWorkerTemplate.imjoy.html")
+new_06="ImJoy window",ij.plugin.NewPlugin("imjoy-plugin:https://raw.githubusercontent.com/imjoy-team/ImJoy/master/web/src/plugins/windowTemplate.imjoy.html")
+new_07="ImJoy web-worker",ij.plugin.NewPlugin("imjoy-plugin:https://raw.githubusercontent.com/imjoy-team/ImJoy/master/web/src/plugins/webWorkerTemplate.imjoy.html")
+new_08="ImJoy web-python",ij.plugin.NewPlugin("imjoy-plugin:https://raw.githubusercontent.com/imjoy-team/ImJoy/master/web/src/plugins/webPythonTemplate.imjoy.html")
+new_09="ImJoy native-python",ij.plugin.NewPlugin("imjoy-plugin:https://raw.githubusercontent.com/imjoy-team/ImJoy/master/web/src/plugins/nativePythonTemplate.imjoy.html")
+new_10=-
+new_11="Text Window...",ij.plugin.NewPlugin("text+dialog")
 
 # Plugins installed in the Help/About submenu
 about01="About This Submenu...",ij.plugin.SimpleCommands("about")

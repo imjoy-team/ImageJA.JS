@@ -51,13 +51,13 @@ public class PluginInstaller implements PlugIn {
 			return false;
 		if (name.endsWith(".txt") && !name.contains("_"))
 			name = name.substring(0,name.length()-4) + ".ijm";
-		if (name.endsWith(".zip")) {
-			if (!name.contains("_")) {
-				IJ.error("Plugin Installer", "No underscore in file name:\n \n  "+name);
-				return false;
-			}
-			name = name.substring(0,name.length()-4) + ".jar";
-		}
+		// if (name.endsWith(".zip")) {
+		// 	if (!name.contains("_")) {
+		// 		IJ.error("Plugin Installer", "No underscore in file name:\n \n  "+name);
+		// 		return false;
+		// 	}
+		// 	name = name.substring(0,name.length()-4) + ".jar";
+		// }
 		String dir = null;
 		boolean isLibrary = name.endsWith(".jar") && !name.contains("_");
 		if (isLibrary) {
@@ -83,15 +83,19 @@ public class PluginInstaller implements PlugIn {
 			}
 		}
 		if (dir==null) {
-			SaveDialog sd = new SaveDialog("Save Plugin, Macro or Script...", Menus.getPlugInsPath(), name, null);
-			String name2 = sd.getFileName();
-			if (name2==null)
-				return false;
-			dir = sd.getDirectory();
+			// SaveDialog sd = new SaveDialog("Save Plugin, Macro or Script...", Menus.getPlugInsPath(), name, null);
+			// String name2 = sd.getFileName();
+			// if (name2==null)
+			// 	return false;
+			// dir = sd.getDirectory();
+			dir = "/files/";
 		}
+		// for ImageJ.JS, make sure it's writable
+		dir = dir.replace("/str/", "/files/");
 		//IJ.log(dir+"   "+Menus.getPlugInsPath());
 		if (!savePlugin(new File(dir,name), data))
 			return false;
+
 		if (name.endsWith(".java"))
 			IJ.runPlugIn("ij.plugin.Compiler", dir+name);
 		Menus.updateImageJMenus();
