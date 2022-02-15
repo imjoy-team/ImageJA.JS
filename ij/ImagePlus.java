@@ -104,6 +104,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private Properties imageProperties;
 	private Color borderColor;
 	private boolean temporary;
+	private double defaultMin, defaultMax;
 
 
     /** Constructs an uninitialized ImagePlus. */
@@ -499,7 +500,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			activated = false;
 			int stackSize = getStackSize();
 			if (stackSize>1)
-				win = new StackWindow(this);
+				win = new StackWindow(this);	// displays the window and (if macro) waits for window to be activated
 			else if (getProperty(Plot.PROPERTY_KEY) != null)
 				win = new PlotWindow(this, (Plot)(getProperty(Plot.PROPERTY_KEY)));
 			else
@@ -508,16 +509,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			if (overlay!=null && getCanvas()!=null)
 				getCanvas().setOverlay(overlay);
 			IJ.showStatus(statusMessage);
-			if (IJ.isMacro()) { // wait for window to be activated
-				long start = System.currentTimeMillis();
-				while (!activated) {
-					IJ.wait(5);
-					if ((System.currentTimeMillis()-start)>2000) {
-						WindowManager.setTempCurrentImage(this);
-						break; // 2 second timeout
-					}
-				}
-			}
+			if (IJ.isMacro() && stackSize==1) // for non-stacks, wait for window to be activated
+				waitTillActivated();
 			if (imageType==GRAY16 && default16bitDisplayRange!=0) {
 				resetDisplayRange();
 				updateAndDraw();
@@ -548,11 +541,48 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 	}
 
-	/** Called by ImageWindow.windowActivated(). */
+	/** Waits until the image window becomes activated. This is necessary in
+	 *  macros or other programs if an ImagePlus is shown on the screen,
+	 *  because displaying the window is asynchronous (happens later)
+	 *  and will make the image the active one. Without waiting, in the
+	 *  meanwhile another window could be already the active one and would
+	 *  become deactivated.
+	 *  If the ImagePlus may have been displayed previously, first call
+	 *  setDeactivated().
+	 *  <code>ImagePlus.show()</code> and <code>new StackWindow(ImagePlus)</code>
+	 *  call this method if IJ.isMacro() is true, i.e., when running a macro or
+	 *  executing an IJ.run(...) call.
+	*/
+	public void waitTillActivated() {
+		if (win == null) return;
+		if (EventQueue.isDispatchThread()) { //'activated' is set in the EventQueue, we can't wait for it in the EventQueue
+			WindowManager.setTempCurrentImage(this);
+			return;
+		}
+		long start = System.currentTimeMillis();
+		while (!activated) {
+			IJ.wait(5);
+			if (ij != null && ij.quitting()) return;
+			if ((System.currentTimeMillis()-start)>2000) {
+				WindowManager.setTempCurrentImage(this);
+				break; // 2 second timeout
+			}
+		}
+	}
+
+	/** Called by ImageWindow.windowActivated(); to end waiting in waitTillActivated. */
 	public void setActivated() {
 		activated = true;
 		if (borderColor!=null && win!=null)
 			win.setBackground(borderColor);
+	}
+
+	/** Called by <code>new StackWindow(ImagePlus)</code>
+	 * before showing the StackWindow, to prepare for
+	 * waitTillActivated().
+	*/
+	public void setDeactivated() {
+		activated = false;
 	}
 
 	/** Returns this image as a AWT image. */
@@ -578,11 +608,22 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 
 	/** Replaces the image, if any, with the one specified.
-		Throws an IllegalStateException if an error occurs
-		while loading the image. */
+	 * Throws an IllegalStateException if an error occurs
+	 * while loading the image.
+	*/
 	public void setImage(Image image) {
 		if (image instanceof BufferedImage) {
-			BufferedImage bi = (BufferedImage)image;
+			BufferedImage bi = (BufferedImage)image;			
+			int nBands = bi.getSampleModel().getNumBands();
+			int type = bi.getType();
+			boolean rgb = type==BufferedImage.TYPE_3BYTE_BGR || type==BufferedImage.TYPE_INT_RGB || type==BufferedImage.TYPE_4BYTE_ABGR;
+			if (nBands>1 && !rgb) {
+				ImageStack biStack = new ImageStack(bi.getWidth(), bi.getHeight());			
+				for (int b=0; b<nBands; b++)
+					biStack.addSlice(convertToImageProcessor(bi, b));
+				setImage(new ImagePlus("", biStack));
+				return;
+			}			
 			if (bi.getType()==BufferedImage.TYPE_USHORT_GRAY) {
 				setProcessor(null, new ShortProcessor(bi));
 				return;
@@ -616,6 +657,33 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			else
 				repaintWindow();
 		}
+	}
+	
+	/**
+	 * Extract pixels as an an ImageProcessor from a single band of a BufferedImage.
+	 * @param img
+	 * @param band
+	 * @return
+	 */
+	public static ImageProcessor convertToImageProcessor(BufferedImage img, int band) {
+		int w = img.getWidth();
+		int h = img.getHeight();
+		int dataType = img.getSampleModel().getDataType();
+		// Read data as float (no matter what it is - it's the most accuracy ImageJ can provide)
+		FloatProcessor fp = new FloatProcessor(w, h);
+		float[] pixels = (float[])fp.getPixels();
+		img.getRaster().getSamples(0, 0, w, h, band, pixels);
+		// Convert to 8 or 16-bit, if appropriate
+		if (dataType == DataBuffer.TYPE_BYTE) {
+			ByteProcessor bp = new ByteProcessor(w, h);
+			bp.setPixels(0, fp);
+			return bp;
+		} else if (dataType == DataBuffer.TYPE_USHORT) {
+			ShortProcessor sp = new ShortProcessor(w, h);
+			sp.setPixels(0, fp);
+			return sp;
+		} else
+			return fp;
 	}
 
 	/** Replaces this image with the specified ImagePlus. May
@@ -786,14 +854,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				setOpenAsHyperStack(true);
 			activated = false;
 			win = new StackWindow(this, dimensionsChanged?null:getCanvas());   // replaces this window
-			if (IJ.isMacro()) { // wait for stack window to be activated
-				long start = System.currentTimeMillis();
-				while (!activated) {
-					IJ.wait(5);
-					if ((System.currentTimeMillis()-start)>200)
-						break; // 0.2 second timeout
-				}
-			}
+			if (IJ.isMacro()) waitTillActivated(); // wait for stack window to be activated
 			setPosition(1, 1, 1);
 		} else if (newStackSize>1 && invalidDimensions) {
 			if (isDisplayedHyperStack())
@@ -1115,7 +1176,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		if (title==null)
 			return;
     	if (win!=null) {
-    		if (ij!=null && !title.equals(this.title))
+    		if (ij!=null)
 				Menus.updateWindowMenuItem(this, this.title, title);
 			String virtual = stack!=null && stack.isVirtual()?" (V)":"";
 			String global = getGlobalCalibration()!=null?" (G)":"";
@@ -3039,10 +3100,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 
 	public void resetDisplayRange() {
-		if (imageType==GRAY16 && default16bitDisplayRange>=8 && default16bitDisplayRange<=16 && !(getCalibration().isSigned16Bit()))
+		if (defaultMin!=0.0 || defaultMax!=0.0)
+			setDisplayRange(defaultMin, defaultMax);
+		else if (imageType==GRAY16 && default16bitDisplayRange>=8 && default16bitDisplayRange<=16 && !(getCalibration().isSigned16Bit()))
 			ip.setMinAndMax(0, Math.pow(2,default16bitDisplayRange)-1);
 		else
 			ip.resetMinAndMax();
+	}
+
+	public void setDefaultDisplayRange(double min, double max) {
+		this.defaultMin = min;
+		this.defaultMax = max;
 	}
 
 	/** Returns 'true' if this image is thresholded. */

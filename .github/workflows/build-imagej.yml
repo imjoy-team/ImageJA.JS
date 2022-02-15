@@ -24,7 +24,7 @@ jobs:
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: 1.53m
+          tag: 1.53o
           name: ImageJ.JS
           files: imagej-js-dist/
           allow_override: true

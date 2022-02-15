@@ -25,7 +25,7 @@ cd imagej-js-dist
 
 # download ij153 from imagej.net
 export IJ1_VERSION=ij153
-export IJ_JAR=ij-1.53m.jar
+export IJ_JAR=ij-1.53o.jar
 
 curl http://wsr.imagej.net/distros/cross-platform/${IJ1_VERSION}.zip -LO
 unzip -q -o ${IJ1_VERSION}.zip

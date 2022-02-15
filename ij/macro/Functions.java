@@ -120,7 +120,7 @@ public class Functions implements MacroConstants, Measurements {
 			case DRAW_LINE: drawLine(); break;
 			case REQUIRES: requires(); break;
 			case AUTO_UPDATE: autoUpdate = getBooleanArg(); break;
-			case UPDATE_DISPLAY: interp.getParens(); updateDisplay(); break;
+			case UPDATE_DISPLAY: interp.getParens(); updateNeeded=true; updateDisplay(); break;
 			case DRAW_STRING: drawString(); break;
 			case SET_PASTE_MODE: IJ.setPasteMode(getStringArg()); break;
 			case DO_COMMAND: doCommand(); break;
@@ -351,6 +351,16 @@ public class Functions implements MacroConstants, Measurements {
 			return Math.pow(getFirstArg(), getLastArg());
 		else if (name.equals("atan2"))
 			return Math.atan2(getFirstArg(), getLastArg());
+		else if (name.equals("constrain"))
+			return Math.min(Math.max(getFirstArg(), getNextArg()), getLastArg());
+		else if (name.equals("map")) {
+			double value = getFirstArg();
+			double fromLow = getNextArg();
+			double fromHigh = getNextArg();
+			double toLow = getNextArg();
+			double toHigh = getLastArg();
+			return (value-fromLow)*(toHigh-toLow)/(fromHigh-fromLow)+toLow;
+		}
 		double arg = getArg();
 		if (name.equals("ceil"))
 			return Math.ceil(arg);
@@ -1809,9 +1819,13 @@ public class Functions implements MacroConstants, Measurements {
 			title = "";
 		}
 		interp.getRightParen();
-		if (withCancel)
-			IJ.showMessageWithCancel(title, message);
-		else
+		if (withCancel) {
+			boolean rtn = IJ.showMessageWithCancel(title, message);
+			if (!rtn) {
+				interp.finishUp();
+				throw new RuntimeException(Macro.MACRO_CANCELED);
+			}
+		} else
 			IJ.showMessage(title, message);
 	}
 
@@ -2221,6 +2235,7 @@ public class Functions implements MacroConstants, Measurements {
 			currentPlot.setFrozen(getBooleanArg());
 			return Double.NaN;			
 		} else if (name.equals("removeNaNs")) {
+			interp.getParens();
 			currentPlot.removeNaNs();
 			return Double.NaN;
 		}  else if (name.equals("addLegend") || name.equals("setLegend")) {
@@ -7304,7 +7319,7 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null)
 			Overlay.updateTableOverlay(imp, row1, row2, tableSize);
-		rt.show(title);
+		rt.show(rt.getTitle());
 		return null;
 	}
 

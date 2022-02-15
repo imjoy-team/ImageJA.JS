@@ -121,10 +121,14 @@ public class ImageJ_Updater implements PlugIn {
 		try {
 			URL url = new URL(address);
 			IJ.showStatus("Connecting to "+IJ.URL);
+			URLConnection uc = url.openConnection();
+			int len = uc.getContentLength();
+			if (IJ.debugMode) IJ.log("Updater (url): "+ address + " "+ len);
+			if (len<=0)
+				return null;
 			String name = address.contains("daily")?"daily build (":"ij.jar (";
-			IJ.showStatus("Downloading "+ name);
-			InputStream in = url.openStream();
-			int len = in.available();
+			IJ.showStatus("Downloading "+ name + IJ.d2s((double)len/1048576,1)+"MB)");
+			InputStream in = uc.getInputStream();
 			data = new byte[len];
 			int n = 0;
 			while (n < len) {

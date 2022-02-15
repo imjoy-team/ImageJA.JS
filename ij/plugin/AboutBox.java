@@ -56,8 +56,10 @@ import java.awt.image.*;
 		add(text[3], xcenter, y, font, TextRoi.CENTER, overlay);
 		y += 27;
 		add(text[4], xcenter, y, font, TextRoi.CENTER, overlay);
-		y += 27;
-		add(text[5], xcenter, y, font, TextRoi.CENTER, overlay);
+		if (IJ.maxMemory()>0L) {
+			y += 27;
+			add(text[5], xcenter, y, font, TextRoi.CENTER, overlay);
+		}
 		add(text[6], width-10, ip.getHeight()-10, font, TextRoi.RIGHT, overlay);
 		imp.setOverlay(overlay);
 		ImageWindow.centerNextImage();

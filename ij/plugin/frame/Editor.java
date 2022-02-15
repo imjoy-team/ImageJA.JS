@@ -95,7 +95,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	private boolean dontShowWindow;
 	private int[] sizes = {9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72};
 	private int fontSizeIndex = (int)Prefs.get(FONT_SIZE, 6); // defaults to 16-point
-	// private CheckboxMenuItem monospaced;
+	private CheckboxMenuItem monospaced;
 	private static boolean wholeWords;
 	private boolean isMacroWindow;
 	private int debugStart, debugEnd;
@@ -229,7 +229,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		// if (IJ.isWindows())
 		// 	item = new MenuItem("Copy  Ctrl+C");
 		// else
-		// 	item = new MenuItem("Copy", new MenuShortcut(KeyEvent.VK_C));
+		// 	item = new MenuItem("Undo",new MenuShortcut(KeyEvent.VK_Z));		
 		// m.add(item);
 		// if (IJ.isWindows())
 		// 	item = new MenuItem("Paste  Ctrl+V");

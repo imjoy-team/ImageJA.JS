@@ -211,4 +211,3 @@ public class Clipboard implements PlugIn, Transferable {
 }
 
 
-

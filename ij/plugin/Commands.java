@@ -29,8 +29,6 @@ public class Commands implements PlugIn {
 			close();
 		else if (cmd.equals("close-all"))
 			closeAll();
-		else if (cmd.equals("clear-cached"))
-			clearCached();
 		else if (cmd.equals("save"))
 			save();
 		else if (cmd.equals("revert"))

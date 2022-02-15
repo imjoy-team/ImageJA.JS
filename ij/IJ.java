@@ -1520,8 +1520,17 @@ public class IJ {
 		setRawThreshold(img, lowerThreshold, upperThreshold, displayMode);
 	}
 
+	/** This is a version of setThreshold() that uses raw (uncalibrated)
+	 * values in the range 0-255 for 8-bit images and 0-65535 for 16-bit
+	 * images and the "Red" LUT display mode.
+	*/
+	public static void setRawThreshold(ImagePlus img, double lowerThreshold, double upperThreshold) {
+		setRawThreshold(img, lowerThreshold, upperThreshold, null);
+	}
+
 	/** This is a version of setThreshold() that always uses raw (uncalibrated) values
-		 in the range 0-255 for 8-bit images and 0-65535 for 16-bit images. */
+	 * in the range 0-255 for 8-bit images and 0-65535 for 16-bit images.
+	*/
 	public static void setRawThreshold(ImagePlus img, double lowerThreshold, double upperThreshold, String displayMode) {
 		int mode = ImageProcessor.RED_LUT;
 		if (displayMode!=null) {
@@ -1895,8 +1904,9 @@ public class IJ {
 		"home" ("user.home"), "downloads", "startup",  "imagej" (ImageJ directory),
 		"plugins", "macros", "luts", "temp", "current", "default",
 		"image" (directory active image was loaded from), "file" 
-		(directory most recently used to open or save a file) or "cwd"
-		(current working directory), otherwise displays a dialog and
+		(directory most recently used to open or save a file), "cwd"
+		(current working directory) or "preferences" (location of
+		"IJ_Prefs.txt" file), otherwise displays a dialog and
 		returns the path to the directory selected by the user. Returns
 		null if the specified directory is not found or the user cancels the
 		dialog box. Also aborts the macro if the user cancels the
@@ -1924,6 +1934,8 @@ public class IJ {
 			dir = Prefs.getImageJDir();
 		else if (title2.equals("current") || title2.equals("default"))
 			dir = OpenDialog.getDefaultDirectory();
+		else if (title2.equals("preferences"))
+			dir = Prefs.getPrefsDir();
 		else if (title2.equals("temp")) {
 			dir = System.getProperty("java.io.tmpdir");
 			if (isMacintosh()) dir = "/tmp/";
@@ -2151,7 +2163,7 @@ public class IJ {
 	public static byte[] saveAsBytes(ImagePlus imp, String format) {
 		String tmp = "/files/tmp";
 		String title = imp.getTitle();
-		tmp = saveAs(imp, format, tmp);
+		saveAs(imp, format, tmp);
 		// recover the title
 		imp.setTitle(title);
 		byte[] bytes = openAsBytes(tmp);
@@ -2192,9 +2204,9 @@ public class IJ {
 	/* Saves the specified image. The format argument must be "tiff",  
 		"jpeg", "gif", "zip", "raw", "avi", "bmp", "fits", "pgm", "png", 
 		"text image", "lut", "selection" or "xy Coordinates". */
- 	public static String saveAs(ImagePlus imp, String format, String path) {
+ 	public static void saveAs(ImagePlus imp, String format, String path) {
 		if (format==null)
-			return null;
+			return;
 		if (path!=null && path.length()==0)
 			path = null;
 		format = format.toLowerCase(Locale.US);
@@ -2203,15 +2215,15 @@ public class IJ {
 			roi2.endPaste();
 		if (format.indexOf("tif")!=-1) {
 			saveAsTiff(imp, path);
-			return path;
+			return;
 		} else if (format.indexOf("jpeg")!=-1 || format.indexOf("jpg")!=-1) {
 			path = updateExtension(path, ".jpg");
 			JpegWriter.save(imp, path, FileSaver.getJpegQuality());
-			return path;
+			return;
 		} else if (format.indexOf("gif")!=-1) {
 			path = updateExtension(path, ".gif");
 			GifWriter.save(imp, path);
-			return path;
+			return;
 		} else if (format.indexOf("text image")!=-1) {
 			path = updateExtension(path, ".txt");
 			format = "Text Image...";
@@ -2261,7 +2273,6 @@ public class IJ {
 			else
 				run(imp, format, "save="+path);
 		}
-		return path;
 	}
 	
 	/** Saves the specified image in TIFF format. Displays a file save dialog

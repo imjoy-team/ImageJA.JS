@@ -17,6 +17,7 @@ public class HistogramPlot extends ImagePlus {
 	static final int WIN_HEIGHT = HIST_HEIGHT + (int)(118*SCALE);
 	static final int BAR_HEIGHT = (int)(SCALE*12);
 	static final int INTENSITY1=0, INTENSITY2=1, RGB=2, RED=3, GREEN=4, BLUE=5;
+	static final Color frameColor = new Color(30,60,120);
 	
 	int rgbMode = -1;
 	ImageStatistics stats;
@@ -25,7 +26,7 @@ public class HistogramPlot extends ImagePlus {
 	long[] histogram;
 	LookUpTable lut;
 	int decimalPlaces;
-	int digits;
+	int digits; 
 	long newMaxCount;
 	boolean logScale;
 	int yMax;
@@ -96,17 +97,6 @@ public class HistogramPlot extends ImagePlus {
 		boolean limitToThreshold = (Analyzer.getMeasurements()&LIMIT)!=0;
 		imp.getMask();
 		histogram = stats.getHistogram();
-		if (limitToThreshold && histogram.length==256) {
-			ImageProcessor ip = imp.getProcessor();
-			if (ip.getMinThreshold()!=ImageProcessor.NO_THRESHOLD) {
-				int lower = scaleDown(ip, ip.getMinThreshold());
-				int upper = scaleDown(ip, ip.getMaxThreshold());
-				for (int i=0; i<lower; i++)
-					histogram[i] = 0L;
-				for (int i=upper+1; i<256; i++)
-					histogram[i] = 0L;
-			}
-		}
 		lut = imp.createLut();
 		int type = imp.getType();
 		boolean fixedRange = type==ImagePlus.GRAY8 || type==ImagePlus.COLOR_256 || imp.isRGB();
@@ -216,7 +206,6 @@ public class HistogramPlot extends ImagePlus {
 	void drawPlot(long maxCount, ImageProcessor ip) {
 		if (maxCount==0) maxCount = 1;
 		frame = new Rectangle(XMARGIN, YMARGIN, HIST_WIDTH, HIST_HEIGHT);
-		ip.drawRect(frame.x-1, frame.y, frame.width+2, frame.height+1);
 		if (histogram.length==256) {
 			double scale2 = HIST_WIDTH/256.0;
 			int barWidth = 1;
@@ -249,6 +238,9 @@ public class HistogramPlot extends ImagePlus {
 				}
 			}
 		}
+		ip.setColor(frameColor);
+		ip.drawRect(frame.x-1, frame.y, frame.width+2, frame.height+1);
+		ip.setColor(Color.black);
 	}
 		
 	void drawLogPlot (long maxCount, ImageProcessor ip) {

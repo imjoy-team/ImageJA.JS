@@ -90,17 +90,6 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 		IJ.register(Recorder.class);
 		fgColorSet = bgColorSet = false;
 		bbSet = false;
-
-		int w = 460;
-		int h = 220;
-		Dimension screen = IJ.getScreenSize();
-		if(w>screen.width){
-			w = screen.width;
-		}
-		if(h>screen.height){
-			h = screen.height;
-		}
-		setSize(w, h);
 	}
 	
 	public static void record(String method) {

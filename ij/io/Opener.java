@@ -42,6 +42,7 @@ public class Opener {
 	private static boolean openUsingPlugins;
 	private static boolean bioformats;
 	private String url;
+	private boolean useHandleExtraFileTypes;
 
 	static {
 		Hashtable commands = Menus.getCommands();
@@ -82,7 +83,7 @@ public class Opener {
 	 * @see ij.IJ#openImage(String)
 	*/
 	public void open(String path) {
-		boolean isURL = path.indexOf("://")>0;
+		boolean isURL = path.contains("://") || path.contains("file:/");
 		if (isURL && isText(path)) {
 			openTextURL(path);
 			return;
@@ -98,8 +99,10 @@ public class Opener {
 		ImagePlus imp = null;
 		if (path.endsWith(".txt"))
 			this.fileType = JAVA_OR_TEXT;
-		else
+		else {
+			useHandleExtraFileTypes = true;
 			imp = openImage(path);
+		}
 		if (imp==null && isURL)
 			return;
 		if (imp!=null) {
@@ -179,6 +182,7 @@ public class Opener {
 		that ImageJ's File/Open command uses to open files if
 		"Open/Save Using JFileChooser" is checked in EditOptions/Misc. */
 	public void openMultiple() {
+		LookAndFeel saveLookAndFeel = Java2.getLookAndFeel();
 		Java2.setSystemLookAndFeel();
 		// run JFileChooser in a separate thread to avoid possible thread deadlocks
 		try {
@@ -217,6 +221,7 @@ public class Opener {
 			if (i==0 && !error)
 				Menus.addOpenRecentItem(path);
 		}
+		Java2.setLookAndFeel(saveLookAndFeel);
 	}
 	
 	/**
@@ -233,7 +238,7 @@ public class Opener {
 			path = getPath();
 		if (path==null) return null;
 		ImagePlus img = null;
-		if (path.indexOf("://")>0)
+		if (path.contains("://") || path.contains("file:/")) // path is a URL
 			img = openURL(path);
 		else
 			img = openImage(getDir(path), getName(path));
@@ -372,7 +377,16 @@ public class Opener {
 				else
 					return null;
 			case UNKNOWN: case TEXT:
-				return openUsingHandleExtraFileTypes(path);
+				imp = null;
+				if (name.endsWith(".lsm"))
+					useHandleExtraFileTypes = true; // use LSM_Reader to opem .lsm files
+				if (!useHandleExtraFileTypes)
+					imp = openUsingBioFormats(path);
+				useHandleExtraFileTypes = false;
+				if (imp!=null)
+					return imp;
+				else
+					return openUsingHandleExtraFileTypes(path);
 			default:
 				return null;
 		}
@@ -391,11 +405,14 @@ public class Opener {
 		File f = new File(path);
 		if (!f.exists())
 			return null;
+		int nImages = WindowManager.getImageCount();
 		int[] wrap = new int[] {this.fileType};
 		ImagePlus imp = openWithHandleExtraFileTypes(path, wrap);
 		if (imp!=null && imp.getNChannels()>1)
 			imp = new CompositeImage(imp, IJ.COLOR);
 		this.fileType = wrap[0];
+		if (imp==null && (this.fileType==UNKNOWN||this.fileType==TIFF) && WindowManager.getImageCount()==nImages)
+			IJ.error("Opener", "Unsupported format or file not found:\n"+path);
 		return imp;
 	}
 	
@@ -722,7 +739,7 @@ public class Opener {
 		} 
 		if (img==null)
 			return null;
-		if (img.getColorModel().hasAlpha()) {
+		if (img.getColorModel().hasAlpha() && img.getType()!=BufferedImage.TYPE_4BYTE_ABGR) {
 			int width = img.getWidth();
 			int height = img.getHeight();
 			BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -1161,13 +1178,41 @@ public class Opener {
 			if (images==null || images.length==0)
 				return null;
 			ImagePlus imp = images[0];
-			if (imp.getStackSize()==3 && imp.getNChannels()==3 && imp.getBitDepth()==8)
-				imp = imp.flatten();
 			return imp;
-		} catch(Exception e) {
-		}
+		} catch(Exception e) {}
 		return null;
 	}
+	
+	/*
+	public static boolean isRGBStack(ImagePlus imp) {
+		if (imp==null)
+			return false;
+		boolean rgb = imp.getStackSize()==3 && imp.getNChannels()==3 && imp.getBitDepth()==8;
+		if (!rgb)
+			return false;
+		for (int i=1; i<=3; i++) {
+			imp.setSlice(i);
+			LUT lut = imp.getProcessor().getLut();
+			if (lut==null) {
+				rgb = false;
+				break;
+			}
+			byte[] bytes = lut.getBytes();				
+			if (bytes==null) {
+				rgb = false;
+				break;
+			}
+			if (!((i==0 && (bytes[255]&255)==255 && (bytes[511]&255)==0 && (bytes[767]&255)==0)
+			|| (i==1 && (bytes[255]&255)==0 && (bytes[511]&255)==255 && (bytes[767]&255)==0)
+			|| (i==2 && (bytes[255]&255)==0 && (bytes[511]&255)==0 && (bytes[767]&255)==255))) {
+				rgb = false;
+				break;
+			}
+		}
+		imp.setSlice(1);
+		return rgb;
+	}
+	*/
 
 	/** Opens a lookup table (LUT) and returns it as a LUT object, or returns null if there is an error.
 	 * @see ij.ImagePlus#setLut
