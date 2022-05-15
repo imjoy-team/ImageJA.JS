@@ -22,6 +22,7 @@ jobs:
       - name: Compile ImageJ.JS
         run: bash compile-js.sh
       - uses: meeDamian/github-release@2.0
+        if: github.ref == 'refs/heads/master'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: 1.53m
