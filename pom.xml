@@ -11,7 +11,7 @@
 
 	<groupId>net.imagej</groupId>
 	<artifactId>ij</artifactId>
-	<version>1.53m</version>
+	<version>1.53o</version>
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
@@ -115,6 +115,31 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>ij</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>.</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>IJ_Props.txt</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>images</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>macros</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>*.*</include>
+				</includes>
+				<targetPath>${project.build.directory}/classes/macros</targetPath>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
