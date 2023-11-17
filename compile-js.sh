@@ -94,6 +94,16 @@ mv plugins.config plugins/action_bar20210614214121.jar.config
 rm plugins/action_bar20210614214121.jar
 mv plugins/action_bar20210614214121-packed.jar plugins/action_bar20210614214121.jar
 
+# download and compile 
+curl https://imagej.net/ij/plugins/download/jars/nifti_io.jar -LO
+mv nifti_io.jar plugins/nifti_io.jar
+${CHEERPJ_DIR}/cheerpjfy.py  -j 4 --deps=${IJ_JAR} --pack-jar=plugins/nifti_io.jar plugins/nifti_io.jar
+# extract plugins.config
+jar xf plugins/nifti_io.jar plugins.config
+mv plugins.config plugins/nifti_io.jar.config
+rm plugins/nifti_io.jar
+mv plugins/nifti_io.jar plugins/nifti_io.jar
+
 rm ImageJ.exe
 rm run
 rm -rf ImageJ.app
