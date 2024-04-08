@@ -165,11 +165,14 @@ public class IJ {
 			try {
 				new Thread(new Runnable() {
 					public void run() {
-						Macro_Runner mr = new Macro_Runner();
+						Macro_Runner mr = new Macro_Runner(true);
 						try{
 							String macroResult = mr.runMacro(macro, arg);
 							try{
-								Global.jsCall("onMacroResolve", macroResult);
+								if(macroResult!=null)
+									Global.jsCall("onMacroReject", macroResult);
+								else
+									Global.jsCall("onMacroResolve", null);
 							}
 							finally{
 							}
