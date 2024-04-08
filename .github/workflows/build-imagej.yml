@@ -25,7 +25,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: 1.53m
+          tag: 1.53m1
           name: ImageJ.JS
           files: imagej-js-dist/
           allow_override: true

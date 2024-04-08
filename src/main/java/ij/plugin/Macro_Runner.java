@@ -13,7 +13,17 @@ import java.lang.reflect.*;
 	macros and scripts opened using the Plugins/Macros/Run command. */
 public class Macro_Runner implements PlugIn {
 	private static String filePath;
+	private static boolean returnError = false;
 	
+	public Macro_Runner() {
+		this();
+	}
+
+	public Macro_Runner(boolean returnError) {
+		this.returnError = returnError;
+		this();
+	}
+
 	/** Opens and runs the specified macro file (.txt or .ijm) or script file (.js, .bsh or .py)  
 		on the current thread. Displays a file open dialog if <code>name</code> 
 		is an empty string. The macro or script is assumed to be in the ImageJ 
@@ -123,8 +133,13 @@ public class Macro_Runner implements PlugIn {
 		}
 		if (IJ.debugMode) IJ.log("runMacro: "+path+" ("+name+")");
 		if (!exists || f==null) {
-            IJ.error("RunMacro", "Macro or script not found:\n \n"+path);
-			return null;
+			if (returnError){
+				return "Macro or script not found:\n \n"+path;
+			}
+			else{
+				IJ.error("RunMacro", "Macro or script not found:\n \n"+path);
+				return null;
+			}
 		}
 		filePath = path;
 		try {
@@ -146,8 +161,14 @@ public class Macro_Runner implements PlugIn {
 				return runMacro(macro, arg);
 		}
 		catch (Exception e) {
-			if (!Macro.MACRO_CANCELED.equals(e.getMessage()))
-				IJ.error(e.getMessage());
+			if (!Macro.MACRO_CANCELED.equals(e.getMessage())){
+				if (returnError){
+					return e.getMessage();
+				}
+				else{
+					IJ.error(e.getMessage());
+				}
+			}
 			return null;
 		}
 	}
@@ -187,7 +208,10 @@ public class Macro_Runner implements PlugIn {
 			ClassLoader pcl = IJ.getClassLoader();
 			InputStream is = pcl.getResourceAsStream(name);
 			if (is==null) {
-				IJ.error("Macro Runner", "Unable to load \""+name+"\" from jar file");
+				if (returnError)
+					return "Unable to load \""+name+"\" from jar file";
+				else
+					IJ.error("Macro Runner", "Unable to load \""+name+"\" from jar file");
 				return null;
 			}
 			InputStreamReader isr = new InputStreamReader(is);
@@ -199,7 +223,10 @@ public class Macro_Runner implements PlugIn {
 			macro = sb.toString();
 			is.close();
 		} catch (IOException e) {
-			IJ.error("Macro Runner", ""+e);
+			if (returnError)
+				return ""+e;
+			else
+				IJ.error("Macro Runner", ""+e);
 		}
 		if (macro!=null)
 			return (new Macro_Runner()).runMacro(macro, arg);
