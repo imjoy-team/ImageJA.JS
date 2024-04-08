@@ -20,8 +20,8 @@ public class Macro_Runner implements PlugIn {
 	}
 
 	public Macro_Runner(boolean returnError) {
-		this.returnError = returnError;
 		this();
+		this.returnError = returnError;
 	}
 
 	/** Opens and runs the specified macro file (.txt or .ijm) or script file (.js, .bsh or .py)  
