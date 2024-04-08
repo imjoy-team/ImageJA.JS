@@ -335,7 +335,7 @@ public class Interpreter implements MacroConstants {
 				inPrint = true;
 				String s = getString();
 				inPrint = false;
-				if (s!=null && s.length()>0 && !s.equals("NaN") && !s.equals("[aborted]"))
+				if (s!=null && s.length()>0 && !s.equals("NaN") && !s.startsWith("[aborted]"))
 					log(s);
 				return;
 			case ARRAY_FUNCTION: func.getArrayFunction(pgm.table[tokenAddress].type); break;
