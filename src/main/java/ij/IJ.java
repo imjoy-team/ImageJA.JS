@@ -143,7 +143,7 @@ public class IJ {
 	/** Runs the macro contained in the string <code>macro</code>
 		on the current thread. Returns any string value returned by
 		the macro, null if the macro does not return a value, or
-		"[aborted]" if the macro was aborted due to an error. The
+		"[aborted]..." if the macro was aborted due to an error. The
 		equivalent macro function is eval(). */
 	public static String runMacro(String macro) {
 		return runMacro(macro, "");
@@ -153,7 +153,7 @@ public class IJ {
 		on the current thread. The optional string argument can be
 		retrieved in the called macro using the getArgument() macro
 		function. Returns any string value returned by the macro, null
-		if the macro does not return a value, or "[aborted]" if the
+		if the macro does not return a value, or "[aborted]..." if the
 		macro was aborted due to an error.  */
 	public static String runMacro(final String macro, final String arg) {
 		if(EventQueue.isDispatchThread()){

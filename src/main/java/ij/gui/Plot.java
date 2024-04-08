@@ -3321,7 +3321,7 @@ public class Plot implements Cloneable {
 				sb.append(plotObject.macroCode);
 				if (!drawingLegend ||!sb.toString().contains("d2s") ) {// a graphical symbol won't contain "d2s" ..
 					String rtn = IJ.runMacro(sb.toString());//.. so it can go to the legend
-					if ("[aborted]".equals(rtn))
+					if (rtn.startsWith("[aborted]"))
 					plotObject.macroCode = null;
 				}
 				WindowManager.setTempCurrentImage(null);

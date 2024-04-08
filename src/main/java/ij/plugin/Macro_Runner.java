@@ -173,7 +173,7 @@ public class Macro_Runner implements PlugIn {
     /** Runs the specified macro on the current thread. Macros can retrieve 
     	the optional string argument by calling the getArgument() macro function. 
     	Returns the string value returned by the macro, null if the macro does not
-    	return a value, or "[aborted]" if the macro was aborted due to an error. */
+    	return a value, or "[aborted]..." if the macro was aborted due to an error. */
 	public String runMacro(String macro, String arg) {
 		Interpreter interp = new Interpreter();
 		try {
@@ -184,6 +184,13 @@ public class Macro_Runner implements PlugIn {
 			IJ.showProgress(1.0);
 			ImagePlus imp = WindowManager.getCurrentImage();
 			if (imp!=null) imp.unlock();
+			if (returnError){
+				CharArrayWriter caw = new CharArrayWriter();
+				PrintWriter pw = new PrintWriter(caw);
+				e.printStackTrace(pw);
+				String s = caw.toString();
+				return "[aborted] Error:" + s;
+			}
 			String msg = e.getMessage();
 			if (e instanceof RuntimeException && msg!=null && e.getMessage().equals(Macro.MACRO_CANCELED))
 				return  "[aborted]";
@@ -194,7 +201,7 @@ public class Macro_Runner implements PlugIn {
 	
 	/** Runs the specified macro from a JAR file in the plugins folder,
 		passing it the specified argument. Returns the String value returned
-		by the macro, null if the macro does not return a value, or "[aborted]"
+		by the macro, null if the macro does not return a value, or "[aborted]..."
 		if the macro was aborted due to an error. The macro can reside anywhere
 		in the plugins folder, in or out of a JAR file, so name conflicts are possible.
 		To avoid name conflicts, it is a good idea to incorporate the plugin
