@@ -14,11 +14,6 @@ import java.lang.reflect.*;
 public class Macro_Runner implements PlugIn {
 	private static String filePath;
 	private static boolean returnError = false;
-	
-	public Macro_Runner() {
-		this();
-	}
-
 	public Macro_Runner(boolean returnError) {
 		this();
 		this.returnError = returnError;
