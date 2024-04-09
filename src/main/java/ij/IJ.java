@@ -919,8 +919,16 @@ public class IJ {
 			IJ.log(title2 + ": " + msg);
 			if (abortMacro && (title.contains("Open")||title.contains("Reader")))
 				abortMacro = false;
-		} else
-			showMessage(title2, msg);
+		} else {
+			try{
+				// e.printStackTrace();	
+				Global.jsCall("onMacroReject", msg);
+			}
+			catch(Exception e){
+				showMessage(title2, msg);
+			}
+		}
+			
 		redirectErrorMessages = false;
 		if (abortMacro)
 			Macro.abort();

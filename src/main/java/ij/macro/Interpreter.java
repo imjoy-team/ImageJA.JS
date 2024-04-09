@@ -11,6 +11,7 @@ import java.awt.*;
 import java.util.*;
 import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
+import com.leaningtech.client.Global;
 
 
 /** This is the recursive descent parser/interpreter for the ImageJ macro language. */
@@ -1413,20 +1414,33 @@ public class Interpreter implements MacroConstants {
 		if (noImages)
 			title = "No Image";
 		Macro.setOptions(null);
-		GenericDialog gd = new GenericDialog(title);
-		gd.setInsets(6,5,0);
-		gd.addMessage(msg);
-		gd.setInsets(15,30,5);
-		if (!noImages)
-			gd.addCheckbox("Show \"Debug\" Window", showVariables);
-		gd.hideCancelButton();
-		gd.showDialog();
-		if (!noImages)
-			showVariables = gd.getNextBoolean();
-		else
-			showVariables = false;
-		if (!gd.wasCanceled() && showVariables)
-			updateDebugWindow(variables, null);
+
+		try{
+			// e.printStackTrace();	
+			String[] markedVariables = markChanges(variables);
+			// concatenate variables
+			String variablesString = "";
+			for (int i = 0; i < markedVariables.length; i++) {
+				variablesString += markedVariables[i] + "\n";
+			}
+			Global.jsCall("onMacroReject", "" + title + ": " + msg + "\n" + variablesString);
+		}
+		catch(Exception e){
+			GenericDialog gd = new GenericDialog(title);
+			gd.setInsets(6,5,0);
+			gd.addMessage(msg);
+			gd.setInsets(15,30,5);
+			if (!noImages)
+				gd.addCheckbox("Show \"Debug\" Window", showVariables);
+			gd.hideCancelButton();
+			gd.showDialog();
+			if (!noImages)
+				showVariables = gd.getNextBoolean();
+			else
+				showVariables = false;
+			if (!gd.wasCanceled() && showVariables)
+				updateDebugWindow(variables, null);
+		}
 	}
 
 	public TextWindow updateDebugWindow(String[] variables, TextWindow debugWindow) {
