@@ -922,7 +922,7 @@ public class IJ {
 		} else {
 			try{
 				// e.printStackTrace();	
-				Global.jsCall("onMacroReject", msg);
+				Global.jsCall("onMacroReject", title2 + ":" + msg);
 			}
 			catch(Exception e){
 				showMessage(title2, msg);
